@@ -64,6 +64,7 @@ mouse=(function(){
     }
   }
   this.Draggable =function(){
+
     dlist.push(this);
     this.remove=function(){
       list.splice(list.indexOf(this),1);
@@ -73,12 +74,17 @@ mouse=(function(){
     this.hover=false;
     this.clicked=false;
     var t_ck=this;
+    this.overrideHover=function(){
+      return false;
+    }
     this.on('mouseenter',function(){
       // console.log("mouseenter");
+      if(!t_ck.overrideHover())
       t_ck.hover=true;
     });
     this.on('mouseout',function(){
       // console.log("mosueout");
+      if(!t_ck.overrideHover())
       t_ck.hover=false;
     });
     this.onClick=function(e){

@@ -105,7 +105,13 @@ CodeModule=function(layer,id){
   this.move=function(v){
     group.move(v);
   }
-
+  this.overrideHover=function(){
+    for(var t of connectors){
+      if(t.hover)
+      return true;
+    }
+    return false;
+  }
   group.on('mouseover', function(e) {
     rect.setFill(hColor);
     t_Cm.handle('mouseenter',e);
@@ -121,12 +127,15 @@ CodeModule=function(layer,id){
     cColor=sColor;
     rect.setFill(cColor);
   }
+
   this.deselect=function(e){
     this.selected=false;
     this.handle('ondeselect',e);
     cColor=color;
     rect.setFill(cColor);
   }
+
+
 }
 
 
