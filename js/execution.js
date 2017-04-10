@@ -4,6 +4,7 @@
 
 var modules=[];
 var modl={};
+
 window.onload=function(){
   var layer = new Konva.Layer();
   var width = window.innerWidth;
@@ -29,13 +30,14 @@ window.onload=function(){
   function frame(vars) {
     for(var modl of modules)
       modl.draw(vars);
+
+    master.handle('frame',vars);
+
     layer.draw();
     requestAnimationFrame(frame);
   }
 
   function start(){
-
-
     // add the layer to the stage
     stage.add(layer);
     requestAnimationFrame(frame);

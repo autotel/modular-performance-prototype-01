@@ -1,4 +1,8 @@
 //onto
+var master=(function(){
+  onHandlers.call(this);
+  return this;
+})();
 mouse=(function(){
   onHandlers.call(this);
   this.pos={x:0,y:0};
@@ -7,6 +11,7 @@ mouse=(function(){
   this.dragging=false;
   this.buttonsDown={};
   this.buttonsDragging={};
+
   document.addEventListener("mousedown", function(e){
     // console.log(e);
     lastClickpos={x:e.offsetX,y:e.offsetY};
@@ -62,6 +67,14 @@ mouse=(function(){
       cb.call(dlist[a]);
       // console.log(dlist[a].id);
     }
+  }
+
+  this.getHoveredClickable=function(){
+    for(var a in dlist){
+      if(dlist[a].hover)
+        return dlist[a]
+    }
+    return false;
   }
   this.Draggable =function(){
 

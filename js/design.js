@@ -1,4 +1,25 @@
-ConnectorModule=function(parent,x,y){
+
+ConnectorGraph=function(layer,from,to){
+  console.log("nlin3");
+  console.log([from.sprite.attrs.x, from.sprite.attrs.y, to.sprite.attrs.x, to.sprite.attrs.y]);
+  var sprite= new Konva.Line({
+    points: [from.sprite.attrs.x, from.sprite.attrs.y, to.sprite.attrs.x, to.sprite.attrs.y],
+    stroke: 'black',
+    strokeWidth: 2,
+    // lineCap: 'round',
+    // lineJoin: 'round'
+  });
+  layer.add(sprite);
+  this.update=function(e){
+    sprite.setPoints([from.sprite.absolute.x, from.sprite.absolute.y, to.sprite.attrs.x, to.sprite.attrs.y]);
+  }
+  master.on('frame',this.update);
+
+}
+createLine=function(layer,a,b){
+  new ConnectorGraph(layer,a,b);
+}
+ConnectorModule=function(layer,x,y){
   this.hover=false;
   this.dragging=false;
   var color="#ffffff";
@@ -8,7 +29,7 @@ ConnectorModule=function(parent,x,y){
   var t_Cnm=this;
   var sprite=new Konva.Group({x:x,y:y});
   var line = new Konva.Line({
-    points: [0, 0, 10, 0],
+    points: [0, 0, -10, 0],
     stroke: 'black',
     strokeWidth: 2,
     lineCap: 'round',
@@ -32,14 +53,32 @@ ConnectorModule=function(parent,x,y){
     t_Cnm.hover=false;
     circle.setFill(cColor);
   });
-  this.onDrag=function(e){
-    if(this.isDragging){
-      line.points=[0,0,mouse.pos.x,mouse.pos.y];
-      return true;
-    }else{
-      return false;
+  mouse.on('mousedown',function(e){
+    if(t_Cnm.hover)
+      t_Cnm.isClicked=true;
+  });
+  mouse.on('mouseup',function(e){
+    if(t_Cnm.isDragging){
+      // circle.position({x:0,y:0});
+      line.setPoints([0,0,-10,0]);
+      t_Cnm.isDragging=false;
+      t_Cnm.isClicked=false;
+      var umo=mouse.getHoveredClickable();
+      if(umo.type=="cModule"){
+        createLine(layer,t_Cnm,umo);
+      }
     }
-  }
+  });
+  mouse.on('drag',function(e){
+    if(t_Cnm.isClicked){
+      t_Cnm.isDragging=true;
+      // console.log("r");
+      // console.log(e.offset);
+      // circle.position(e.delta);
+      line.setPoints([0,0,e.delta.x,e.delta.y]);
+    }
+  });
+
   this.onClick=function(e){
     //click is prioritized. Connectors override rectangle clickss
     var clickTaken=t_Cnm.hover;
@@ -55,6 +94,7 @@ ConnectorModule=function(parent,x,y){
   this.sprite=sprite;
 }
 CodeModule=function(layer,id){
+  this.type="cModule";
   ModuleBase.call(this);
   mouse.Draggable.call(this);
   var t_Cm=this;
@@ -68,6 +108,7 @@ CodeModule=function(layer,id){
   var group = new Konva.Group({
     // draggable: true
   });
+  this.sprite=group;
   var rect = new Konva.Rect({
     // x: 50,
     // y: 50,
@@ -93,7 +134,7 @@ CodeModule=function(layer,id){
   var t_Sz=[rect.getWidth(),rect.getHeight()];
   var t_q=5;
   for(var a=0; a<t_q; a++){
-    var circle=new ConnectorModule(t_Cm,t_Sz[0],(t_Sz[1]/t_q)*a+(t_Sz[1]/(t_q*2)));
+    var circle=new ConnectorModule(layer,t_Sz[0]+10,(t_Sz[1]/t_q)*a+(t_Sz[1]/(t_q*2)));
     group.add(circle.sprite);
     connectors[a]=circle;
   }
@@ -120,7 +161,13 @@ CodeModule=function(layer,id){
     rect.setFill(cColor);
     t_Cm.handle('mouseout',e);
   });
-
+  this.on('dragging',function(e){
+    for(var conn of connectors){
+      conn.sprite.absolute={};
+      conn.sprite.absolute.x=t_Cm.sprite.attrs.x+conn.sprite.attrs.x;
+      conn.sprite.absolute.y=t_Cm.sprite.attrs.y+conn.sprite.attrs.y;
+    }
+  });
   this.select=function(e){
     this.selected=true;
     this.handle('onselect',e);
