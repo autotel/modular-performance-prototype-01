@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>modular-performance-x01</title>
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #F0F0F0;
+    }
+</style>
+  </head>
+  <body>
+      <div id="stage"></div>
+  </body>
+  <script src="libs/Tone.js"></script>
+  <script src="libs/onHandlers.js"></script>
+  <script src="libs/jquery-3.0.0.min.js"></script>
+  <script src="libs/konva.js"></script>
+  <script>
+//onto
+mouse=(function(){
+  onHandlers.call(this);
+  this.pos={x:0,y:0};
+  return this;
+})();
+ModuleBase=function(){
+  onHandlers.call(this);
+  console.log("new module");
+  var t_M=this;
+  this.draw=function(vars){
+    this.handle('draw',vars);
+  }
+  this.codeString="";
+  this.codeActive={};
+  this.runCode=function(){
+    var testStatic="mm";
+    try {
+      eval(t_M.codeString);
+    } catch (e) {
+      throw e;
+    } finally {
+
+    }
+  }
+}
+//design
+CodeModule=function(){
+  ModuleBase.call(this);
+
+}
+//execution
+var modules=[];
+var modl={};
+$(window).ready(function(){
+  console.log("aa");
+  modl=new ModuleBase();
+  moudules.push(modl);
+
+  function frame(vars) {
+    for(var modl of modules)
+      modl.draw(vars);
+    requestAnimationFrame(frame);
+  }
+  function start(){
+    requestAnimationFrame(frame);
+  }
+  start();
+});
+  </script>
+</html>
