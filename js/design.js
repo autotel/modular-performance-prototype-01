@@ -16,10 +16,15 @@ ConnectorGraph=function(layer,from,to){
   master.on('frame',this.update);
 
 }
-createLine=function(layer,a,b){
-  new ConnectorGraph(layer,a,b);
+createConnection=function(parent,a,b){
+  if(parent.patchTo(b)){
+    new ConnectorGraph(connectorsLayer,a,b);
+  }
 }
-ConnectorModule=function(layer,x,y){
+removeConnection=function(connector){
+
+}
+ConnectorModule=function(parent,x,y){
   this.hover=false;
   this.dragging=false;
   var color="#ffffff";
@@ -65,7 +70,7 @@ ConnectorModule=function(layer,x,y){
       t_Cnm.isClicked=false;
       var umo=mouse.getHoveredClickable();
       if(umo.type=="cModule"){
-        createLine(layer,t_Cnm,umo);
+        createConnection(parent,t_Cnm,umo);
       }
     }
   });
@@ -102,6 +107,7 @@ CodeModule=function(layer,id){
   var cColor=color;
   var hColor="#000000";
   var sColor="#555555";
+  var children=[];
   this.id=id;
   this.selected=false;
   this.hover=false;
@@ -136,7 +142,7 @@ CodeModule=function(layer,id){
   var t_Sz=[rect.getWidth(),rect.getHeight()];
   var t_q=5;
   for(var a=0; a<t_q; a++){
-    var circle=new ConnectorModule(layer,t_Sz[0]-15,(t_Sz[1]/t_q)*a+(t_Sz[1]/(t_q*2))-25);
+    var circle=new ConnectorModule(t_Cm,t_Sz[0]-15,(t_Sz[1]/t_q)*a+(t_Sz[1]/(t_q*2))-25);
     group.add(circle.sprite);
     connectors[a]=circle;
   }
@@ -184,7 +190,21 @@ CodeModule=function(layer,id){
     rect.setFill(cColor);
   }
 
-
+  this.patchTo=function(who){
+    if(who===t_Cm){
+      return false;
+    }else if(children.indexOf(who)!=-1){
+      return false;
+    }else{
+      children.push(who);
+      return true;
+    }
+  }
+  this.unpatch=function(who){
+    children.splice(children.indexOf(who),1);
+    return true;
+  }
 }
+
 
 

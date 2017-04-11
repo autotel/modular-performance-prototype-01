@@ -4,6 +4,7 @@
 
 var modules=[];
 var modl={};
+var connectorsLayer=new Konva.Layer();
 
 window.onload=function(){
   var layer = new Konva.Layer();
@@ -32,13 +33,14 @@ window.onload=function(){
       modl.draw(vars);
 
     master.handle('frame',vars);
-
+    connectorsLayer.draw();
     layer.draw();
     requestAnimationFrame(frame);
   }
 
   function start(){
     // add the layer to the stage
+    stage.add(connectorsLayer);
     stage.add(layer);
     requestAnimationFrame(frame);
 
