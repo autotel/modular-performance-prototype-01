@@ -62,19 +62,13 @@ mouse=(function(){
   var dlist=[];
   var cklist=[];
   var eachDraggable=function(cb){
-    // console.log(dlist);
     for(var a in dlist){
-      // console.log(a);
       cb.call(dlist[a]);
-      // console.log(dlist[a].id);
     }
   }
   var eachClickable=function(cb){
-    // console.log(dlist);
     for(var a in cklist){
-      // console.log(a);
-      cb.call(dlist[a]);
-      // console.log(dlist[a].id);
+      cb.call(cklist[a]);
     }
   }
 
