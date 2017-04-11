@@ -19,7 +19,7 @@ mouse=(function(){
     t_M.handle('mousedown',e);
     t_M.handle('click',e);
     var chainReturn=false;
-    eachDraggable(function(){
+    eachClickable(function(){
       // console.log("mousedown",this);
       // console.log(chainReturn);
       if(!chainReturn)
@@ -30,7 +30,7 @@ mouse=(function(){
     buttonsDown[e.buttons]=false;
     t_M.handle('mouseup',e);
     var chainReturn=false;
-    eachDraggable(function(){
+    eachClickable(function(){
       // console.log("mousedown",this);
       // console.log(chainReturn);
       if(!chainReturn)
@@ -60,9 +60,18 @@ mouse=(function(){
   });
 
   var dlist=[];
+  var cklist=[];
   var eachDraggable=function(cb){
     // console.log(dlist);
     for(var a in dlist){
+      // console.log(a);
+      cb.call(dlist[a]);
+      // console.log(dlist[a].id);
+    }
+  }
+  var eachClickable=function(cb){
+    // console.log(dlist);
+    for(var a in cklist){
       // console.log(a);
       cb.call(dlist[a]);
       // console.log(dlist[a].id);
@@ -76,9 +85,9 @@ mouse=(function(){
     }
     return false;
   }
-  this.Draggable =function(){
-
-    dlist.push(this);
+  this.Clickable=function(){
+    var t_ck=this;
+    cklist.push(this);
     this.remove=function(){
       list.splice(list.indexOf(this),1);
     }
@@ -86,7 +95,6 @@ mouse=(function(){
     onHandlers.call(this);
     this.hover=false;
     this.clicked=false;
-    var t_ck=this;
     this.overrideHover=function(){
       return false;
     }
@@ -124,6 +132,12 @@ mouse=(function(){
       }
       return taken;
     }
+  }
+  this.Draggable =function(){
+    dlist.push(this);
+    t_M.Clickable.call(this);
+    var t_ck=this;
+
     this.onDrag=function(e){
       if(t_ck.clicked){
         t_ck.position(e.offset);

@@ -131,7 +131,7 @@ CodeModule=function(layer,id){
   });
   tooltip.add(new Konva.Text({
     x:-25,
-    y:-25,
+    y:-50,
     text: 'id: '+id,
     fontFamily: 'Roboto',
     fontSize: 18,
@@ -139,6 +139,8 @@ CodeModule=function(layer,id){
     fill: 'white'
   }));
   group.add(rect);
+  this.modeCore=new ModeCores.BlankGrid();
+  group.add(this.modeCore.sprite);
   var t_Sz=[rect.getWidth(),rect.getHeight()];
   var t_q=5;
   for(var a=0; a<t_q; a++){

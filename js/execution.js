@@ -5,6 +5,7 @@
 var modules=[];
 var modl={};
 var connectorsLayer=new Konva.Layer();
+var interactiveLayer=new Konva.Layer();
 
 window.onload=function(){
   var layer = new Konva.Layer();
@@ -35,6 +36,7 @@ window.onload=function(){
     master.handle('frame',vars);
     connectorsLayer.draw();
     layer.draw();
+    interactiveLayer.draw();
     requestAnimationFrame(frame);
   }
 
@@ -42,6 +44,7 @@ window.onload=function(){
     // add the layer to the stage
     stage.add(connectorsLayer);
     stage.add(layer);
+    stage.add(interactiveLayer);
     requestAnimationFrame(frame);
 
   }
