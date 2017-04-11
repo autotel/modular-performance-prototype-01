@@ -110,8 +110,8 @@ CodeModule=function(layer,id){
   });
   this.sprite=group;
   var rect = new Konva.Rect({
-    // x: 50,
-    // y: 50,
+    x: -25,
+    y: -25,
     width: 50,
     height: 50,
     fill: cColor,
@@ -124,6 +124,8 @@ CodeModule=function(layer,id){
     opacity: 0.75
   });
   tooltip.add(new Konva.Text({
+    x:-25,
+    y:-25,
     text: 'id: '+id,
     fontFamily: 'Roboto',
     fontSize: 18,
@@ -134,7 +136,7 @@ CodeModule=function(layer,id){
   var t_Sz=[rect.getWidth(),rect.getHeight()];
   var t_q=5;
   for(var a=0; a<t_q; a++){
-    var circle=new ConnectorModule(layer,t_Sz[0]+10,(t_Sz[1]/t_q)*a+(t_Sz[1]/(t_q*2)));
+    var circle=new ConnectorModule(layer,t_Sz[0]-15,(t_Sz[1]/t_q)*a+(t_Sz[1]/(t_q*2))-25);
     group.add(circle.sprite);
     connectors[a]=circle;
   }
