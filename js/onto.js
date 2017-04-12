@@ -3,6 +3,15 @@ var master=(function(){
   onHandlers.call(this);
   return this;
 })();
+metronome=(function(){
+  onHandlers.call(this);
+  var tMetro=this;
+  Tone.Transport.scheduleRepeat(function(time){
+    tMetro.handle('beat',time);
+  }, "8n");
+  Tone.Transport.start();
+  return this;
+})();
 mouse=(function(){
   onHandlers.call(this);
   this.pos={x:0,y:0};

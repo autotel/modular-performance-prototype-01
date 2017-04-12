@@ -13,6 +13,12 @@ ConnectorGraph=function(layer,from,to){
   this.update=function(e){
     sprite.setPoints([from.sprite.absolute.x, from.sprite.absolute.y, to.sprite.attrs.x, to.sprite.attrs.y]);
   }
+  this.highlight=function(){
+    this.setStroke('red');
+    setTimeout(function(){
+      this.setStroke('black');
+    },200);
+  }
   master.on('frame',this.update);
 
 }
@@ -108,6 +114,7 @@ CodeModule=function(layer,id){
   var hColor="#000000";
   var sColor="#555555";
   var children=[];
+  var connectorGraphs=[];
   this.id=id;
   this.selected=false;
   this.hover=false;
@@ -139,7 +146,7 @@ CodeModule=function(layer,id){
     fill: 'white'
   }));
   group.add(rect);
-  this.modeCore=new ModeCores.BlankGrid();
+  this.modeCore=new ModeCores.SequencerGrid();
   group.add(this.modeCore.sprite);
   var t_Sz=[rect.getWidth(),rect.getHeight()];
   var t_q=5;
@@ -205,6 +212,21 @@ CodeModule=function(layer,id){
   this.unpatch=function(who){
     children.splice(children.indexOf(who),1);
     return true;
+  }
+  this.sendToCh=function(which,what){
+    var who=t_Cm.children[which];
+    who.receive(what,whom);
+  }
+  this.sendToAllCh=function(what){
+    for(var who of t_Cm.children){
+      who.receive(what,whom);
+    }
+  }
+  this.sendTo=function(who,what){
+    who.receive(what,whom);
+  }
+  this.receive=function(what,whom){
+    t_Cm.modeCore.onSignal({message:what,from:this});
   }
 }
 
