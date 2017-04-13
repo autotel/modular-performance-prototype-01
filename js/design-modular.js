@@ -113,7 +113,7 @@ CodeModule=function(layer,id){
   var cColor=color;
   var hColor="#000000";
   var sColor="#555555";
-  var children=[];
+  this.children=[];
   var connectorGraphs=[];
   this.id=id;
   this.selected=false;
@@ -146,13 +146,26 @@ CodeModule=function(layer,id){
     fill: 'white'
   }));
   group.add(rect);
-  this.modeCore=new ModeCores.SequencerGrid();
+
+
+  var HOR=false;
+  this.overrideHover=function(){
+    return HOR;
+  }
+  this.spriteStealsMouse=function(sprite){
+    sprite.on('mouseover',function(){HOR=true});
+    sprite.on('mouseout',function(){HOR=false});
+  }
+
+  this.modeCore=new ModeCores.SequencerGrid(this);
   group.add(this.modeCore.sprite);
+
   var t_Sz=[rect.getWidth(),rect.getHeight()];
   var t_q=5;
   for(var a=0; a<t_q; a++){
     var circle=new ConnectorModule(t_Cm,t_Sz[0]-15,(t_Sz[1]/t_q)*a+(t_Sz[1]/(t_q*2))-25);
     group.add(circle.sprite);
+    t_Cm.spriteStealsMouse(circle.sprite);
     connectors[a]=circle;
   }
   group.add(tooltip);
@@ -162,13 +175,6 @@ CodeModule=function(layer,id){
   }
   this.move=function(v){
     group.move(v);
-  }
-  this.overrideHover=function(){
-    for(var t of connectors){
-      if(t.hover)
-      return true;
-    }
-    return false;
   }
   group.on('mouseover', function(e) {
     rect.setFill(hColor);
@@ -202,32 +208,48 @@ CodeModule=function(layer,id){
   this.patchTo=function(who){
     if(who===t_Cm){
       return false;
-    }else if(children.indexOf(who)!=-1){
+    }else if(t_Cm.children.indexOf(who)!=-1){
       return false;
     }else{
-      children.push(who);
+      t_Cm.children.push(who);
       return true;
     }
   }
   this.unpatch=function(who){
-    children.splice(children.indexOf(who),1);
+    t_Cm.children.splice(t_Cm.children.indexOf(who),1);
     return true;
   }
   this.sendToCh=function(which,what){
+    if(t_Cm.hover){
+      console.log("["+t_Cm.id+"]>>"+what);
+    }
     var who=t_Cm.children[which];
-    who.receive(what,whom);
+    if(who)
+    who.receive(what,who);
   }
   this.sendToAllCh=function(what){
+    if(t_Cm.hover){
+      console.log("["+t_Cm.id+"]>>"+what);
+    }
     for(var who of t_Cm.children){
       who.receive(what,whom);
     }
   }
   this.sendTo=function(who,what){
+    if(t_Cm.hover){
+      console.log("["+t_Cm.id+"]>>"+what);
+    }
     who.receive(what,whom);
   }
   this.receive=function(what,whom){
+    if(t_Cm.hover){
+      console.log("["+t_Cm.id+"]<<"+what);
+    }
     t_Cm.modeCore.onSignal({message:what,from:this});
   }
+  // this.position=function(a,b){
+  //   t_Cm.sprite.position({x:a,y:b});
+  // }
 }
 
 

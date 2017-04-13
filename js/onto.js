@@ -58,7 +58,7 @@ mouse=(function(){
         e.offset={x:e.offsetX,y:e.offsetY}
         t_M.handle('drag',e);
         var chainReturn=false;
-        eachDraggable(function(){
+        eachClickable(function(){
           if(!chainReturn)
           chainReturn=this.onDrag(e);
         });
@@ -113,9 +113,9 @@ mouse=(function(){
     });
     this.onClick=function(e){
       this.clickedPosition=e.pos;
-      // console.log("click");
       var taken=false;
       if(t_ck.hover){
+        // console.log("click");
         // console.log("hoverclick");
         t_ck.handle("mousedown",e);
         t_ck.clicked=true;
@@ -134,6 +134,14 @@ mouse=(function(){
 
       }
       return taken;
+    }
+    this.onDrag=function(e){
+      if(t_ck.clicked){
+        t_ck.handle('dragging',e);
+        return true;
+      }else{
+        return false;
+      }
     }
   }
   this.Draggable =function(){

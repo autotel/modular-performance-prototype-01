@@ -19,6 +19,7 @@ window.onload=function(){
 
   for(var a=0; a<10; a++){
     modl=new CodeModule(layer,a);
+    modl.move({x:100,y:0})
     modules[a]=modl;
   }
 

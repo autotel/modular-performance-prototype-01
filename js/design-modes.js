@@ -1,6 +1,6 @@
 ModeCores=(function(){
   var tCoreMan=this;
-  this.Blank=function(){
+  this.Blank=function(owner){
     var tCore=this;
     this.sprite=new Konva.Group();
     this.update=function(){};
@@ -8,29 +8,29 @@ ModeCores=(function(){
     this.onClock=function(){};
     this.onSignal=function(e){};
     this.send=function(a){
-      console.log("would send ",a);
+      // console.log("would send ",a);
+
     };
     metronome.on('beat',function(){tCore.onClock()});
     master.on('frame',function(){tCore.draw();tCore.update();});
   }
   this.squareButton=function(props){
-    var hColor="white";
-    var nColor="grey";
-    var aColor="blue";
+    var hColor=props.hColor||"white";
+    var nColor=props.nColor||"grey";
+    var aColor=props.aColor||"blue";
     var cColor=nColor;
+    var tSq=this;
     props.fill=cColor;
-    var hovered=false;
     var active=false;
     var rect=new Konva.Rect(props);
+    mouse.Clickable.call(this);
     rect.on('mouseover', function(e) {
-      // console.log("aa");
       rect.setFill(hColor);
-      hovered=true;
+      tSq.handle('mouseenter');
     });
     rect.on('mouseout', function(e) {
-      // console.log("aa");
       rect.setFill(cColor);
-      hovered=false;
+      tSq.handle('mouseout');
     });
     rect.on('click',function(){
       active=!active;
@@ -42,7 +42,7 @@ ModeCores=(function(){
       rect.setFill(cColor);
     };
     this.unHighlight=function(){
-      cColor=(active ? aColor : (hovered ? hColor : nColor));
+      cColor=(active ? aColor : (tSq.hover ? hColor : nColor));
       rect.setFill(cColor);
     };
     this.getActive=function(){
@@ -51,34 +51,56 @@ ModeCores=(function(){
     this.setActive=function(a){
       active=a;
     }
-    mouse.Clickable.call(rect);
     this.sprite=rect;
+
   }
-  this.BlankGrid=function(){
+  this.BlankGrid=function(owner){
     var tCore=this;
-    tCoreMan.Blank.call(this);
+    tCoreMan.Blank.call(this,owner);
     var gridButtons=[];
     this.gridButtons=gridButtons;
     var textGraph=new Konva.Text();
     this.sprite.add(textGraph);
     var pitch=10;
-    var displace={x:-20,y:-14};
+    var displace={x:-15,y:-14};
     for(var a =0;a <16; a++){
       var props={x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y};
-      props.width=pitch-1;
-      props.height=pitch-1;
+      props.width=pitch;
+      props.height=pitch;
       props.fill="red";
-      props.stroke="black";
+      // props.stroke="black";
       var rect=new tCoreMan.squareButton(props);
+      owner.spriteStealsMouse(rect.sprite);
       gridButtons.push(rect);
       tCore.sprite.add(rect.sprite);
     }
   }
-  this.SequencerGrid=function(){
+  this.SequencerGrid=function(owner){
     var tCore=this;
-    tCoreMan.BlankGrid.call(this);
+    tCoreMan.BlankGrid.call(this,owner);
     var currentStep=0;
     var patLen=4;
+    var lastMessage=false;
+    var stateSet={};
+    var pitch=10;
+    var displace={x:-15,y:-25};
+    //active: wether to function
+    //globalClock: wether to sync to clock or step on reception of signal
+    //jump: wether to jump to the step designated by the signal or advance incrementally
+    //bifurcate: wether to send the result of each row to a different output pin
+    var propNames=['active','globalClock','jump','bifurcate'];
+    for(var a =0;a <propNames.length; a++){
+      var props={x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y};
+      props.width=pitch;
+      props.height=pitch;
+      props.sColor="red";
+      props.nColor="#333333";
+      var rect=new tCoreMan.squareButton(props);
+      owner.spriteStealsMouse(rect.sprite);
+      stateSet[propNames[a]]=rect;
+      tCore.sprite.add(rect.sprite);
+    }
+
     this.update=function(){};
     this.draw=function(){
       for(var a in tCore.gridButtons){
@@ -89,16 +111,44 @@ ModeCores=(function(){
         }
       }
     };
+    function evaluatePosMemAndSend(){
+      if(stateSet.jump.getActive()){
+        currentStep=lastMessage;
+        currentStep%=patLen;
+        for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
+          if(tCore.gridButtons[a].getActive()){
+            tCore.send(Math.floor(a/4));
+          };
+        }
+      }else{
+        currentStep++;
+        currentStep%=patLen;
+        for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
+          if(tCore.gridButtons[a].getActive()){
+            tCore.send(Math.floor(a/4));
+          };
+        }
+      }
+    }
     this.onClock=function(){
-      currentStep++;
-      currentStep%=patLen;
-      for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
-        if(tCore.gridButtons[a].getActive()){
-          tCore.send(Math.floor(a/4));
-        };
+      if(stateSet.globalClock.getActive()){
+        evaluatePosMemAndSend();
       }
     };
-    this.onSignal=function(e){};
+    this.onSignal=function(e){
+      // console.log(e);
+      lastMessage=e.message;
+      if(!stateSet.globalClock.getActive()){
+        evaluatePosMemAndSend();
+      }
+    };
+    this.send=function(what){
+      if(stateSet.bifurcate){
+        owner.sendToCh(what,what);
+      }else{
+        owner.sendToAllCh(what);
+      }
+    }
   }
   return this;
 })();
