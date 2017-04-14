@@ -6,12 +6,14 @@ ModeCores=(function(){
     this.update=function(){};
     this.draw=function(){};
     this.onClock=function(){};
+    this.onAfterClock=function(){};
     this.onSignal=function(e){};
     this.send=function(a){
       // console.log("would send ",a);
 
     };
     metronome.on('beat',function(){tCore.onClock()});
+    metronome.on('afterbeat',function(){tCore.onAfterClock()});
     master.on('frame',function(){tCore.draw();tCore.update();});
   }
   this.squareButton=function(props){
@@ -87,7 +89,7 @@ ModeCores=(function(){
     //globalClock: wether to waiy for clock or step upon reception of signal
     //jump: wether to jump to the step designated by the signal or advance incrementally
     //bifurcate: wether to send the result of each row to a different output pin
-    var propNames=['deactivate','globalClock','jump','bifurcate'];
+    var propNames=['selfTrigger','globalClock','jump','bifurcate'];
     for(var a =0;a <propNames.length; a++){
       var props={x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y};
       props.width=pitch;
@@ -110,52 +112,71 @@ ModeCores=(function(){
         }
       }
     };
-    var queuedMessages=[];
-    function evaluatePosMem(){
-      if(stateSet.jump.getActive()){
-        for(var message of queuedMessages){
+
+    var incomingQueue=[];
+    var outgoingQueue=[];
+
+    function inCom(){
+
+      if/* we are responding to signals erratically*/(stateSet.jump.getActive()){
+        for(var message of incomingQueue){
           currentStep=message;
           currentStep%=patLen;
           for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
             if(tCore.gridButtons[a].getActive()){
-              // queuedMessages.push(Math.floor(a/4));
-              tCore.send(Math.floor(a/4));
+              outgoingQueue.push(Math.floor(a/4));
+              // tCore.send(Math.floor(a/4));
             };
           }
         }
-        queuedMessages=[];
-      }else{
-        currentStep++;
-        currentStep%=patLen;
-        for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
-          if(tCore.gridButtons[a].getActive()){
-            tCore.send(Math.floor(a/4));
-          };
+      }else/* we are responding to signals linearly*/{
+        for(var message of incomingQueue){
+          currentStep++;
+          currentStep%=patLen;
+          for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
+            if(tCore.gridButtons[a].getActive()){
+              outgoingQueue.push(Math.floor(a/4));
+            };
+          }
         }
       }
+      incomingQueue=[];
     }
-    //
-    // function sendQueue(){
-    //   for(var a of queuedMessages)
-    //     tCore.send(a);
-    //   queuedMessages=[];
-    // }
-    function processQueue(){
-      evaluatePosMem();
+
+    function outGo(){
+      for(var a of outgoingQueue)
+        tCore.send(a);
+      outgoingQueue=[];
     }
+
     this.onClock=function(){
+      // evaluatePosMem();
       if(stateSet.globalClock.getActive()){
-        processQueue();
+        outGo();
       }
+    };
+    //
+    // this.onClock=function(){
+    //   if(stateSet.globalClock.getActive()){
+    //     sendQueue();
+    //   }
+    // };
+    this.onAfterClock=function(){
+      if(stateSet.selfTrigger.getActive()){
+        incomingQueue.push(0);
+      }
+      // if(!stateSet.globalClock.getActive()){
+        inCom();
+      // }
       // sendQueue();
     };
     this.onSignal=function(e){
       // lastMessage=e.message;
-      queuedMessages.push(e.message);
-      if(!stateSet.globalClock.getActive()){
-        processQueue();
+      incomingQueue.push(e.message);
+      // if(!stateSet.globalClock.getActive()){
+        // processQueue();
         // sendQueue();
-      }
+      // }
     };
     this.send=function(what){
       if(stateSet.bifurcate.getActive()){

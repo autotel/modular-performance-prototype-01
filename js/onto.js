@@ -9,6 +9,7 @@ metronome=(function(){
   Tone.Transport.scheduleRepeat(function(time){
     console.log("ck");
     tMetro.handle('beat',time);
+    tMetro.handle('afterbeat',time);
   }, "8n");
   Tone.Transport.start();
   return this;
