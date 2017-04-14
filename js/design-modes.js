@@ -84,11 +84,10 @@ ModeCores=(function(){
     var stateSet={};
     var pitch=10;
     var displace={x:-15,y:-25};
-    //active: wether to function
-    //globalClock: wether to sync to clock or step on reception of signal
+    //globalClock: wether to waiy for clock or step upon reception of signal
     //jump: wether to jump to the step designated by the signal or advance incrementally
     //bifurcate: wether to send the result of each row to a different output pin
-    var propNames=['active','globalClock','jump','bifurcate'];
+    var propNames=['deactivate','globalClock','jump','bifurcate'];
     for(var a =0;a <propNames.length; a++){
       var props={x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y};
       props.width=pitch;
@@ -111,13 +110,14 @@ ModeCores=(function(){
         }
       }
     };
-    function evaluatePosMemAndSend(){
+    var queuedMessages=[];
+    function evaluatePosMem(){
       if(stateSet.jump.getActive()){
         currentStep=lastMessage;
         currentStep%=patLen;
         for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
           if(tCore.gridButtons[a].getActive()){
-            tCore.send(Math.floor(a/4));
+            queuedMessages.push(Math.floor(a/4));
           };
         }
       }else{
@@ -130,20 +130,27 @@ ModeCores=(function(){
         }
       }
     }
+    function sendQueue(){
+      for(var a of queuedMessages)
+        tCore.send(a);
+      queuedMessages=[];
+    }
     this.onClock=function(){
+      evaluatePosMem();
       if(stateSet.globalClock.getActive()){
-        evaluatePosMemAndSend();
+        sendQueue();
       }
     };
     this.onSignal=function(e){
       // console.log(e);
       lastMessage=e.message;
+      evaluatePosMem();
       if(!stateSet.globalClock.getActive()){
-        evaluatePosMemAndSend();
+        sendQueue();
       }
     };
     this.send=function(what){
-      if(stateSet.bifurcate){
+      if(stateSet.bifurcate.getActive()){
         owner.sendToCh(what,what);
       }else{
         owner.sendToAllCh(what);

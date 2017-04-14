@@ -22,15 +22,19 @@ ConnectorGraph=function(layer,from,to){
   master.on('frame',this.update);
 
 }
-createConnection=function(parent,a,b){
-  if(parent.patchTo(b)){
-    new ConnectorGraph(connectorsLayer,a,b);
+createConnection=function(parent,n,a,b){
+  if(parent.patchTo(b,n)){
+    // new ConnectorGraph(connectorsLayer,a,b);
+    console.log("connected");
+  }else{
+    console.log("no copnnection made");
   }
 }
 removeConnection=function(connector){
 
 }
-ConnectorModule=function(parent,x,y){
+ConnectorModule=function(parent,parentIndex,x,y){
+  this.child=false;
   this.hover=false;
   this.dragging=false;
   var color="#ffffff";
@@ -76,7 +80,7 @@ ConnectorModule=function(parent,x,y){
       t_Cnm.isClicked=false;
       var umo=mouse.getHoveredClickable();
       if(umo.type=="cModule"){
-        createConnection(parent,t_Cnm,umo);
+        createConnection(parent,parentIndex,t_Cnm,umo);
       }
     }
   });
@@ -103,6 +107,24 @@ ConnectorModule=function(parent,x,y){
   sprite.add(line);
   sprite.add(circle);
   this.sprite=sprite;
+  this.plug=function(who){
+    if(who){
+      t_Cnm.child=who;
+      t_Cnm.connectorGraph=new ConnectorGraph(connectorsLayer,t_Cnm,who);
+    }
+  }
+  this.unPlug=function(){
+    if(t_Cnm.child){
+      t_Cnm.child=false;
+      t_Cnm.connectorGraph.remove();
+    }
+  }
+  this.highlight=function(){
+    circle.setStroke('red');
+    setTimeout(function(){
+      circle.setStroke('black');
+    },200);
+  }
 }
 CodeModule=function(layer,id){
   this.type="cModule";
@@ -113,7 +135,6 @@ CodeModule=function(layer,id){
   var cColor=color;
   var hColor="#000000";
   var sColor="#555555";
-  this.children=[];
   var connectorGraphs=[];
   this.id=id;
   this.selected=false;
@@ -161,9 +182,9 @@ CodeModule=function(layer,id){
   group.add(this.modeCore.sprite);
 
   var t_Sz=[rect.getWidth(),rect.getHeight()];
-  var t_q=5;
+  var t_q=4;
   for(var a=0; a<t_q; a++){
-    var circle=new ConnectorModule(t_Cm,t_Sz[0]-15,(t_Sz[1]/t_q)*a+(t_Sz[1]/(t_q*2))-25);
+    var circle=new ConnectorModule(t_Cm,a,t_Sz[0]-15,10*a-10);
     group.add(circle.sprite);
     t_Cm.spriteStealsMouse(circle.sprite);
     connectors[a]=circle;
@@ -205,42 +226,50 @@ CodeModule=function(layer,id){
     rect.setFill(cColor);
   }
 
-  this.patchTo=function(who){
+  this.patchTo=function(who,n){
     if(who===t_Cm){
       return false;
-    }else if(t_Cm.children.indexOf(who)!=-1){
-      return false;
     }else{
-      t_Cm.children.push(who);
+      console.log(n);
+      connectors[n].plug(who);
       return true;
     }
   }
   this.unpatch=function(who){
-    t_Cm.children.splice(t_Cm.children.indexOf(who),1);
-    return true;
+    for(var a in connectors){
+      if(connectors[a].child===who){
+        connectors[a].unplug();
+        return true;
+      }
+    }
+    return false;
+    // t_Cm.children.splice(t_Cm.children.indexOf(who),1);
   }
   this.sendToCh=function(which,what){
     if(t_Cm.hover){
       console.log("["+t_Cm.id+"]>>"+what);
     }
-    var who=t_Cm.children[which];
+    var who=connectors[which].child;
+    connectors[which].highlight();
     if(who)
-    who.receive(what,who);
+    who.receive(what,t_Cm);
   }
   this.sendToAllCh=function(what){
     if(t_Cm.hover){
       console.log("["+t_Cm.id+"]>>"+what);
     }
-    for(var who of t_Cm.children){
-      who.receive(what,whom);
+    for(var who of connectors){
+      who.highlight();
+      if(who.child)
+      who.child.receive(what,t_Cm);
     }
   }
-  this.sendTo=function(who,what){
-    if(t_Cm.hover){
-      console.log("["+t_Cm.id+"]>>"+what);
-    }
-    who.receive(what,whom);
-  }
+  // this.sendTo=function(who,what){
+  //   if(t_Cm.hover){
+  //     console.log("["+t_Cm.id+"]>>"+what);
+  //   }
+  //   who.receive(what,t_Cm);
+  // }
   this.receive=function(what,whom){
     if(t_Cm.hover){
       console.log("["+t_Cm.id+"]<<"+what);
