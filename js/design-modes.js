@@ -113,13 +113,17 @@ ModeCores=(function(){
     var queuedMessages=[];
     function evaluatePosMem(){
       if(stateSet.jump.getActive()){
-        currentStep=lastMessage;
-        currentStep%=patLen;
-        for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
-          if(tCore.gridButtons[a].getActive()){
-            queuedMessages.push(Math.floor(a/4));
-          };
+        for(var message of queuedMessages){
+          currentStep=message;
+          currentStep%=patLen;
+          for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
+            if(tCore.gridButtons[a].getActive()){
+              // queuedMessages.push(Math.floor(a/4));
+              tCore.send(Math.floor(a/4));
+            };
+          }
         }
+        queuedMessages=[];
       }else{
         currentStep++;
         currentStep%=patLen;
@@ -130,23 +134,27 @@ ModeCores=(function(){
         }
       }
     }
-    function sendQueue(){
-      for(var a of queuedMessages)
-        tCore.send(a);
-      queuedMessages=[];
+    //
+    // function sendQueue(){
+    //   for(var a of queuedMessages)
+    //     tCore.send(a);
+    //   queuedMessages=[];
+    // }
+    function processQueue(){
+      evaluatePosMem();
     }
     this.onClock=function(){
-      evaluatePosMem();
       if(stateSet.globalClock.getActive()){
-        sendQueue();
+        processQueue();
       }
+      // sendQueue();
     };
     this.onSignal=function(e){
-      // console.log(e);
-      lastMessage=e.message;
-      evaluatePosMem();
+      // lastMessage=e.message;
+      queuedMessages.push(e.message);
       if(!stateSet.globalClock.getActive()){
-        sendQueue();
+        processQueue();
+        // sendQueue();
       }
     };
     this.send=function(what){
