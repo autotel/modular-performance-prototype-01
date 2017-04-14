@@ -165,6 +165,9 @@ ModeCores=(function(){
       if(stateSet.selfTrigger.getActive()){
         incomingQueue.push(0);
       }
+      if(!stateSet.globalClock.getActive()){
+        outGo();
+      }
       // if(!stateSet.globalClock.getActive()){
         inCom();
       // }
