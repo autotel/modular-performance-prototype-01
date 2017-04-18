@@ -20,6 +20,7 @@ ModeCores=(function(){
     var hColor=props.hColor||"white";
     var nColor=props.nColor||"grey";
     var aColor=props.aColor||"blue";
+    var haColor=props.haColor||"8888ff";
     var cColor=nColor;
     var tSq=this;
     props.fill=cColor;
@@ -40,7 +41,8 @@ ModeCores=(function(){
       rect.setFill(cColor);
     });
     this.highlight=function(){
-      cColor=(active ? aColor : hColor);
+      cColor=haColor;
+      // cColor=(active ? aColor : hColor);
       rect.setFill(cColor);
     };
     this.unHighlight=function(){
@@ -104,13 +106,18 @@ ModeCores=(function(){
 
     this.update=function(){};
     this.draw=function(){
-      for(var a in tCore.gridButtons){
-        if(a%4==currentStep){
-          tCore.gridButtons[a].highlight();
-        }else{
-          tCore.gridButtons[a].unHighlight();
-        }
-      }
+      var hs=[];//buttons to hichlight in this frame
+      // for(var a in tCore.gridButtons){
+        // tCore.gridButtons[a].unHighlight();
+        // for(var b of outgoingQueue){
+          // if(a%4==b){
+          //   console.log(a,b);
+          //   hs.push(a);
+          // }
+        // }
+      // }
+      // for (var a of hs){
+      // }
     };
 
     var incomingQueue=[];
@@ -124,6 +131,7 @@ ModeCores=(function(){
           currentStep%=patLen;
           for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
             if(tCore.gridButtons[a].getActive()){
+              tCore.gridButtons[a].highlight();
               outgoingQueue.push(Math.floor(a/4));
               // tCore.send(Math.floor(a/4));
             };
@@ -135,6 +143,7 @@ ModeCores=(function(){
           currentStep%=patLen;
           for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
             if(tCore.gridButtons[a].getActive()){
+              tCore.gridButtons[a].highlight();
               outgoingQueue.push(Math.floor(a/4));
             };
           }
@@ -147,6 +156,9 @@ ModeCores=(function(){
       for(var a of outgoingQueue)
         tCore.send(a);
       outgoingQueue=[];
+      for(var a of tCore.gridButtons){
+        a.unHighlight();
+      }
     }
 
     this.onClock=function(){
