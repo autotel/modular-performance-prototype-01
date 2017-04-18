@@ -89,7 +89,7 @@ ModeCores=(function(){
     //globalClock: wether to waiy for clock or step upon reception of signal
     //jump: wether to jump to the step designated by the signal or advance incrementally
     //bifurcate: wether to send the result of each row to a different output pin
-    var propNames=['selfTrigger','globalClock','jump','bifurcate'];
+    var propNames=['--','globalClock','jump','bifurcate'];
     for(var a =0;a <propNames.length; a++){
       var props={x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y};
       props.width=pitch;
@@ -152,6 +152,8 @@ ModeCores=(function(){
     this.onClock=function(){
       // evaluatePosMem();
       if(stateSet.globalClock.getActive()){
+        incomingQueue.push(0);
+        inCom();
         outGo();
       }
     };
@@ -161,25 +163,25 @@ ModeCores=(function(){
     //     sendQueue();
     //   }
     // };
-    this.onAfterClock=function(){
-      if(stateSet.selfTrigger.getActive()){
-        incomingQueue.push(0);
-      }
-      if(!stateSet.globalClock.getActive()){
-        outGo();
-      }
-      // if(!stateSet.globalClock.getActive()){
-        inCom();
-      // }
-      // sendQueue();
-    };
+    // this.onAfterClock=function(){
+    //   if(stateSet.selfTrigger.getActive()){
+    //     incomingQueue.push(0);
+    //   }
+    //   if(!stateSet.globalClock.getActive()){
+    //     outGo();
+    //   }
+    //   // if(!stateSet.globalClock.getActive()){
+    //     inCom();
+    //   // }
+    //   // sendQueue();
+    // };
     this.onSignal=function(e){
       // lastMessage=e.message;
       incomingQueue.push(e.message);
-      // if(!stateSet.globalClock.getActive()){
-        // processQueue();
-        // sendQueue();
-      // }
+      if(!stateSet.globalClock.getActive()){
+        inCom();
+        outGo();
+      }
     };
     this.send=function(what){
       if(stateSet.bifurcate.getActive()){
