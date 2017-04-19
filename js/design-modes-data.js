@@ -94,17 +94,17 @@
       active=a;
     }
     this.sprite=group;
-    this.data=function(){
-      if(charScript.length<1) return false;
-      if(charScript[0]=="-"||charScript[0]==" ") return false;
-      return parseInt(charScript[0]/*+charScript[1]*/, 16);
-    };
-    this.evt=function(){
-      if(charScript.length>2){
-        return charScript[2]+(charScript[3]|" ");
+    this.getData=function(){
+      if(charScript.length>=2){
+        return charScript[0]+""+(charScript[1]|" ");
       }else{
         return false;
       }
+    };
+    this.evt=function(){
+      if(charScript.length<1) return false;
+      if(charScript[0]=="-"||charScript[0]==" ") return false;
+      return parseInt(charScript[0]/*+charScript[1]*/, 16);
     }
   }
 
@@ -173,29 +173,29 @@
     function inCom(){
       function pStep(){
         currentStep%=patLen;
-        var st=gridButtons[currentStep].data();
+        var st=gridButtons[currentStep].getData();
+        // console.log(">>"+st);
         if(st!==false) outgoingQueue.push(st);
         var ev=gridButtons[currentStep].evt();
-        if(ev!==false){
-          if(ev.length>0)
-          if(ev[0]=="+"||ev[0]=="<"){
-            currentStep+=parseInt(ev[1],16);
-          }else if(ev[0]=="-"||ev[0]==">"){
-            currentStep-=parseInt(ev[1],16);
-          }else if(ev[0]=="*"){
-            currentStep*=parseInt(ev[1],16);
-          }else if(ev[0]=="/"){
-            currentStep/=parseInt(ev[1],16);
-          }else if(ev[0]=="="){
-            currentStep=parseInt(ev[1],16);
-          }else{
-            console.log("synth("+ev[1]+")");
-          }
-        }
       }
       if/* we are responding to signals erratically*/(stateSet.jump.getActive()){
         for(var message of incomingQueue){
-          currentStep=message;
+          if(message.length>0)
+            if(message[0]=="+"||message[0]=="<"){
+              currentStep+=parseInt(message[1],16);
+            }else if(message[0]=="-"||message[0]==">"){
+              currentStep-=parseInt(message[1],16);
+            }else if(message[0]=="*"){
+              currentStep*=parseInt(message[1],16);
+            }else if(message[0]=="/"){
+              currentStep/=parseInt(message[1],16);
+            }else if(message[0]=="="){
+              currentStep=parseInt(message[1],16);
+            }else{
+              console.log("synth("+message[1]+")");
+            }
+          if(isNaN(currentStep)) currentStep=0;
+          // currentStep=message;
           pStep();
         }
       }else/* we are responding to signals linearly*/{
