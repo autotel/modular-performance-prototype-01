@@ -19,11 +19,11 @@ window.onload=function(){
   for(var a=0; a<10; a++){
     var modl;
     modl=new CodeModule(layer,a);
-    if(a==9){
+    /*if(a==9){
       modl.mode(ModeCores.notePlayer);
     }else if(a==8){
       modl.mode(ModeCores.notePlayer);
-    }else{
+    }else*/{
       modl.mode(ModeCores.dataMatrix);
     }
     modl.move({x:100,y:0})

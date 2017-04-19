@@ -42,11 +42,13 @@
     group.on('click',function(){
       tSq.enableTextEdit();
     });
+
     this.enableTextEdit=function(){
       console.log(name,charScript);
       active=!active;
       cColor=(active ? aColor : nColor);
       rect.setFill(cColor);
+      charScript="";
       if(active){
         keyboard.on('keydown.'+name,function(e){
           console.log(e);
@@ -92,6 +94,18 @@
       active=a;
     }
     this.sprite=group;
+    this.data=function(){
+      if(charScript.length<1) return false;
+      if(charScript[0]=="-"||charScript[0]==" ") return false;
+      return parseInt(charScript[0]/*+charScript[1]*/, 16);
+    };
+    this.evt=function(){
+      if(charScript.length>2){
+        return charScript[2]+(charScript[3]|" ");
+      }else{
+        return false;
+      }
+    }
   }
 
 
@@ -108,7 +122,7 @@
     for(var a =0; a <16; a++){
       var props={
         group:{x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y},
-        text:{text:"-",wrap:"char",y:-2,width:pitch,height:pitch,lineHeight:0.65,fontSize:13,fontFamily:"Lucida Console"},
+        text:{wrap:"char",y:-2,width:pitch,height:pitch,lineHeight:0.65,fontSize:13,fontFamily:"Lucida Console"},
         rect:{width:pitch,height:pitch}
       };
       props.width=pitch;
@@ -122,7 +136,7 @@
     }
 
     var currentStep=0;
-    var patLen=4;
+    var patLen=16;
     var lastMessage=false;
     var stateSet={};
     var pitch=10;
@@ -144,11 +158,11 @@
 
     this.update=function(){};
     this.draw=function(){
-      for(var a in tCore.gridButtons){
-        if(a%4==currentStep){
-          tCore.gridButtons[a].highlight();
+      for(var a in gridButtons){
+        if(a%patLen==currentStep){
+          gridButtons[a].highlight();
         }else{
-          tCore.gridButtons[a].unHighlight();
+          gridButtons[a].unHighlight();
         }
       }
     };
@@ -157,27 +171,37 @@
     var outgoingQueue=[];
 
     function inCom(){
-
+      function pStep(){
+        currentStep%=patLen;
+        var st=gridButtons[currentStep].data();
+        if(st!==false) outgoingQueue.push(st);
+        var ev=gridButtons[currentStep].evt();
+        if(ev!==false){
+          if(ev.length>0)
+          if(ev[0]=="+"||ev[0]=="<"){
+            currentStep+=parseInt(ev[1],16);
+          }else if(ev[0]=="-"||ev[0]==">"){
+            currentStep-=parseInt(ev[1],16);
+          }else if(ev[0]=="*"){
+            currentStep*=parseInt(ev[1],16);
+          }else if(ev[0]=="/"){
+            currentStep/=parseInt(ev[1],16);
+          }else if(ev[0]=="="){
+            currentStep=parseInt(ev[1],16);
+          }else{
+            console.log("synth("+ev[1]+")");
+          }
+        }
+      }
       if/* we are responding to signals erratically*/(stateSet.jump.getActive()){
         for(var message of incomingQueue){
           currentStep=message;
-          currentStep%=patLen;
-          for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
-            if(tCore.gridButtons[a].getActive()){
-              outgoingQueue.push(Math.floor(a/4));
-              // tCore.send(Math.floor(a/4));
-            };
-          }
+          pStep();
         }
       }else/* we are responding to signals linearly*/{
         for(var message of incomingQueue){
           currentStep++;
-          currentStep%=patLen;
-          for (var a = currentStep; a < tCore.gridButtons.length; a+=4) {
-            if(tCore.gridButtons[a].getActive()){
-              outgoingQueue.push(Math.floor(a/4));
-            };
-          }
+          pStep();
         }
       }
       incomingQueue=[];
