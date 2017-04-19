@@ -3,7 +3,6 @@
 
 
 var modules=[];
-var modl={};
 var connectorsLayer=new Konva.Layer();
 var interactiveLayer=new Konva.Layer();
 
@@ -18,10 +17,21 @@ window.onload=function(){
   });
 
   for(var a=0; a<10; a++){
+    var modl;
     modl=new CodeModule(layer,a);
+    if(a==9){
+      modl.mode(ModeCores.notePlayer);
+    }else if(a==8){
+      modl.mode(ModeCores.notePlayer);
+    }else{
+      modl.mode(ModeCores.SequencerGrid);
+    }
     modl.move({x:100,y:0})
     modules[a]=modl;
   }
+
+  // modules[0].modeCore=new ModeCores.notePlayer(modules[0]);
+  // modules[0].type="pModule";
 
   mouse.on('click',function(e){
     // console.log(e);

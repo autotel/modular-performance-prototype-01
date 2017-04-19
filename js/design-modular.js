@@ -177,9 +177,10 @@ CodeModule=function(layer,id){
     sprite.on('mouseover',function(){HOR=true});
     sprite.on('mouseout',function(){HOR=false});
   }
-
-  this.modeCore=new ModeCores.SequencerGrid(this);
-  group.add(this.modeCore.sprite);
+  this.mode=function(modeProto){
+    t_Cm.modeCore=new modeProto(t_Cm);
+    group.add(t_Cm.modeCore.sprite);
+  }
 
   var t_Sz=[rect.getWidth(),rect.getHeight()];
   var t_q=4;

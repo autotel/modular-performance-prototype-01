@@ -16,6 +16,9 @@ ModeCores=(function(){
     metronome.on('afterbeat',function(){tCore.onAfterClock()});
     master.on('frame',function(){tCore.draw();tCore.update();});
   }
+
+
+
   this.squareButton=function(props){
     var hColor=props.hColor||"white";
     var nColor=props.nColor||"grey";
@@ -77,6 +80,38 @@ ModeCores=(function(){
       tCore.sprite.add(rect.sprite);
     }
   }
+
+  this.notePlayer=function(owner){
+    tCoreMan.Blank.call(this,owner);
+    var tCore=this;
+    console.log("hi");
+    var stateSet={};
+    var propNames=['drum'];
+
+    var pitch=10;
+    var displace={x:-15,y:-25};
+    for(var a =0;a <propNames.length; a++){
+      var props={x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y};
+      props.width=pitch;
+      props.height=pitch;
+      props.sColor="red";
+      props.nColor="#333333";
+      var rect=new tCoreMan.squareButton(props);
+      owner.spriteStealsMouse(rect.sprite);
+      stateSet[propNames[a]]=rect;
+      tCore.sprite.add(rect.sprite);
+    }
+
+    this.onSignal=function(e){
+      var val=e.message;
+      if(stateSet.drum.getActive()){
+        synth.synth1.play(val);
+      }else{
+        synth.drumkit1.play(val);
+      }
+    };
+  }
+
   this.SequencerGrid=function(owner){
     var tCore=this;
     tCoreMan.BlankGrid.call(this,owner);
