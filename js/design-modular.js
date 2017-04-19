@@ -146,8 +146,8 @@ CodeModule=function(layer,id){
   var rect = new Konva.Rect({
     x: -25,
     y: -25,
-    width: 50,
-    height: 50,
+    width: 85,
+    height: 85,
     fill: cColor,
     stroke: 'black',
     strokeWidth: 4,

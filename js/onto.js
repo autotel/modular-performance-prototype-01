@@ -163,6 +163,14 @@ mouse=(function(){
   }
   return this;
 })();
+var keyboard=(function(){
+  var thk=this;
+  addEventListener("keydown", function(event){
+    // console.log(event);
+    thk.handle("keydown",event);
+  });
+  return this;
+})();
 ModuleBase=function(){
   if(!this.handle)
   onHandlers.call(this);

@@ -1,47 +1,82 @@
-ModeCores=(function(){
+(function(){
   var tCoreMan=this;
-  this.Blank=function(owner){
-    var tCore=this;
-    this.sprite=new Konva.Group();
-    this.update=function(){};
-    this.draw=function(){};
-    this.onClock=function(){};
-    this.onAfterClock=function(){};
-    this.onSignal=function(e){};
-    this.send=function(a){
-      // console.log("would send ",a);
 
-    };
-    metronome.on('beat',function(){tCore.onClock()});
-    metronome.on('afterbeat',function(){tCore.onAfterClock()});
-    master.on('frame',function(){tCore.draw();tCore.update();});
+  var names={};
+  var newName=function(p){
+    if(names.hasOwnProperty(p)){
+      names[p]++;
+    }else{
+      names[p]=0;
+    }
+    return p+names[p];
   }
-
-
-
-  this.squareButton=function(props){
+  //for awareness of a "next" databutton
+  var dataButtons=[];
+  this.dataButton=function(props){
+    var myId=dataButtons.length;
+    dataButtons[myId]=this;
+    var name=newName("databutton");
+    var charScript="";
     var hColor=props.hColor||"white";
     var nColor=props.nColor||"grey";
-    var aColor=props.aColor||"blue";
+    var aColor=props.aColor||"red";
     var cColor=nColor;
     var tSq=this;
     props.fill=cColor;
     var active=false;
-    var rect=new Konva.Rect(props);
+    var rect=new Konva.Rect(props.rect);
+    var group=new Konva.Group(props.group);
+    var text=new Konva.Text(props.text);
+    group.add(rect);
+    group.add(text);
     mouse.Clickable.call(this);
-    rect.on('mouseover', function(e) {
+    group.on('mouseover', function(e) {
       rect.setFill(hColor);
       tSq.handle('mouseenter');
     });
-    rect.on('mouseout', function(e) {
+    group.on('mouseout', function(e) {
       rect.setFill(cColor);
       tSq.handle('mouseout');
     });
-    rect.on('click',function(){
+
+    group.on('click',function(){
+      tSq.enableTextEdit();
+    });
+    this.enableTextEdit=function(){
+      console.log(name,charScript);
       active=!active;
       cColor=(active ? aColor : nColor);
       rect.setFill(cColor);
-    });
+      if(active){
+        keyboard.on('keydown.'+name,function(e){
+          console.log(e);
+          if (e.keyCode==8){
+            charScript="";
+          }else if (e.keyCode==13){
+            //enter
+            charScript=charScript.substring(0,4);
+            keyboard.off('keydown.'+name);
+            tSq.setActive(false);
+          }else if (e.keyCode==9){
+            //tab
+            e.preventDefault();
+            charScript=charScript.substring(0,4);
+            keyboard.off('keydown.'+name);
+            tSq.setActive(false);
+            dataButtons[(myId+1)%(dataButtons.length-1)].enableTextEdit();
+          }else  if (e.keyCode==16){
+            //SHIFT
+          }else if(e.keyCode>0){
+            charScript+=e.key.toUpperCase ( );
+          }else {}
+          console.log(charScript);
+          text.setText(charScript);
+        });
+      }else{
+        keyboard.off('keydown.'+name);
+      }
+    }
+
     this.highlight=function(){
       cColor=(active ? aColor : hColor);
       rect.setFill(cColor);
@@ -56,64 +91,36 @@ ModeCores=(function(){
     this.setActive=function(a){
       active=a;
     }
-    this.sprite=rect;
-
+    this.sprite=group;
   }
-  this.BlankGrid=function(owner,button){
+
+
+  this.dataMatrix=function(owner){
     var tCore=this;
+
     tCoreMan.Blank.call(this,owner);
     var gridButtons=[];
     this.gridButtons=gridButtons;
     var textGraph=new Konva.Text();
     this.sprite.add(textGraph);
-    var pitch=10;
+    var pitch=18;
     var displace={x:-15,y:-14};
-    for(var a =0;a <16; a++){
-      var props={x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y};
+    for(var a =0; a <16; a++){
+      var props={
+        group:{x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y},
+        text:{text:"-",wrap:"char",y:-2,width:pitch,height:pitch,lineHeight:0.65,fontSize:13,fontFamily:"Lucida Console"},
+        rect:{width:pitch,height:pitch}
+      };
       props.width=pitch;
       props.height=pitch;
       props.fill="red";
       // props.stroke="black";
-      var rect=new tCoreMan[button](props);
+      var rect=new tCoreMan.dataButton(props);
       owner.spriteStealsMouse(rect.sprite);
       gridButtons.push(rect);
       tCore.sprite.add(rect.sprite);
     }
-  }
 
-  this.notePlayer=function(owner){
-    tCoreMan.Blank.call(this,owner);
-    var tCore=this;
-    var stateSet={};
-    var propNames=['drum'];
-
-    var pitch=10;
-    var displace={x:-15,y:-25};
-    for(var a =0;a <propNames.length; a++){
-      var props={x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y};
-      props.width=pitch;
-      props.height=pitch;
-      props.sColor="red";
-      props.nColor="#333333";
-      var rect=new tCoreMan.squareButton(props);
-      owner.spriteStealsMouse(rect.sprite);
-      stateSet[propNames[a]]=rect;
-      tCore.sprite.add(rect.sprite);
-    }
-
-    this.onSignal=function(e){
-      var val=e.message;
-      if(stateSet.drum.getActive()){
-        synth.synth1.play(val);
-      }else{
-        synth.drumkit1.play(val);
-      }
-    };
-  }
-
-  this.SequencerGrid=function(owner){
-    var tCore=this;
-    tCoreMan.BlankGrid.call(this,owner,"squareButton");
     var currentStep=0;
     var patLen=4;
     var lastMessage=false;
@@ -128,7 +135,6 @@ ModeCores=(function(){
       var props={x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y};
       props.width=pitch;
       props.height=pitch;
-      props.sColor="red";
       props.nColor="#333333";
       var rect=new tCoreMan.squareButton(props);
       owner.spriteStealsMouse(rect.sprite);
@@ -191,24 +197,7 @@ ModeCores=(function(){
         outGo();
       }
     };
-    //
-    // this.onClock=function(){
-    //   if(stateSet.globalClock.getActive()){
-    //     sendQueue();
-    //   }
-    // };
-    // this.onAfterClock=function(){
-    //   if(stateSet.selfTrigger.getActive()){
-    //     incomingQueue.push(0);
-    //   }
-    //   if(!stateSet.globalClock.getActive()){
-    //     outGo();
-    //   }
-    //   // if(!stateSet.globalClock.getActive()){
-    //     inCom();
-    //   // }
-    //   // sendQueue();
-    // };
+
     this.onSignal=function(e){
       // lastMessage=e.message;
       incomingQueue.push(e.message);
@@ -225,13 +214,6 @@ ModeCores=(function(){
       }
     }
   }
+
   return this;
-})();
-
-
-
-
-
-
-
-
+}).call(ModeCores);

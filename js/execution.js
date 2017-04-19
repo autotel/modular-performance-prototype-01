@@ -24,7 +24,7 @@ window.onload=function(){
     }else if(a==8){
       modl.mode(ModeCores.notePlayer);
     }else{
-      modl.mode(ModeCores.SequencerGrid);
+      modl.mode(ModeCores.dataMatrix);
     }
     modl.move({x:100,y:0})
     modules[a]=modl;
