@@ -41,6 +41,7 @@ var drawer=(function(){
   }
   var create={
     text:function(props){
+      console.log("dr text",props);
       var ret = new Konva.Text(props);
       if(props.appendTo) props.appendTo.add(ret);
       return ret;
@@ -69,13 +70,13 @@ var drawer=(function(){
       return ret;
     },
     line:function(props){
-      // console.log("draw line", props);
       var serializedPoints=[];
       for(var a in props.points){
         serializedPoints.push(props.points[a].x);
         serializedPoints.push(props.points[a].y);
       }
       props.points=serializedPoints;
+      // console.log("draw line", props);
       var ret = new Konva.Line(props);
       if(props.appendTo) props.appendTo.add(ret);
       return ret;
@@ -107,9 +108,17 @@ var drawer=(function(){
             ret.setWidth(newProps.width);
           }else if(a=='height'){
             ret.setHeight(newProps.height);
-          }else/* if(a=='color'){
-            ret.setColor(newProps.color);
-          }else */if(a=='fill'){
+          }else if(a=='points'){
+
+            var serializedPoints=[];
+            for(var a in newProps.points){
+              serializedPoints.push(newProps.points[a].x);
+              serializedPoints.push(newProps.points[a].y);
+            }
+            newProps.points=serializedPoints;
+
+            ret.setPoints(newProps.points);
+          }else if(a=='fill'){
             // console.log(newProps.fill);
             ret.setFill(newProps.fill);
           }else if(a=='stroke'){

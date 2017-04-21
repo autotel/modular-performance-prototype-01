@@ -3,14 +3,15 @@ ConnectorGraph=function(layer,from,to){
   console.log("nlin3");
   // console.log({x:from.sprite.x,y:from.sprite.y},{x:to.sprite.x,y:to.sprite.y});
   var sprite=drawer.create('dynamicLine',{
-    points: [{x:from.sprite.x,y:from.sprite.y},{x:to.sprite.x,y:to.sprite.y}],
-    strokeWidth: 2
+    points: [{x:from.sprite.attrs.x,y:from.sprite.attrs.y},{x:to.sprite.attrs.x,y:to.sprite.attrs.y}],
+    strokeWidth: 2,
+    stroke:"black"
   });
   layer.add(sprite);
   this.update=function(e){
     // sprite.setPoints({x:from.sprite.x,y:from.sprite.y},{x:to.sprite.x,y:to.sprite.y});
     sprite.change({
-      points: [{x:from.sprite.absolute.x,y:from.sprite.absolute.y},{x:to.sprite.x,y:to.sprite.y}]
+      points: [{x:from.sprite.absolute.x,y:from.sprite.absolute.y},{x:to.sprite.attrs.x,y:to.sprite.attrs.y}]
     });
   }
   this.highlight=function(){
@@ -49,7 +50,8 @@ ConnectorModule=function(parent,parentIndex,x,y){
       what:"dynamicLine",
       points: [{x:0, y:0},{ x:-10,y: 0}],
       strokeWidth: 2,
-      alpha:1
+      alpha:1,
+      stroke:"black"
     },
     circle:{
       what:'dynamicCircle',
@@ -58,7 +60,8 @@ ConnectorModule=function(parent,parentIndex,x,y){
       radius: 4,
       fill: "#ffffff",
       strokeWidth: 1,
-      interactive:true
+      interactive:true,
+      stroke:"black"
     }
   }
   for(var a in props){
@@ -88,8 +91,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
   });
   mouse.on('mouseup',function(e){
     if(t_Cnm.isDragging){
-      // circle.position({x:0,y:0});
-      // line.destroy();
+      line.change({points: props.line.points});
 
       t_Cnm.isDragging=false;
       t_Cnm.isClicked=false;
@@ -260,8 +262,8 @@ CodeModule=function(layer,id){
   this.on('dragging',function(e){
     for(var conn of connectors){
       conn.sprite.absolute={};
-      conn.sprite.absolute.x=t_Cm.sprite.x+conn.sprite.x;
-      conn.sprite.absolute.y=t_Cm.sprite.y+conn.sprite.y;
+      conn.sprite.absolute.x=t_Cm.sprite.attrs.x+conn.sprite.attrs.x;
+      conn.sprite.absolute.y=t_Cm.sprite.attrs.y+conn.sprite.attrs.y;
     }
   });
   this.select=function(e){

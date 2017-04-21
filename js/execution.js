@@ -66,10 +66,7 @@ window.onload=function(){
     for(var modl of modules)
       modl.update(vars);
     drawer.update();
-    // master.handle('update',vars);
-    // connectorsLayer.draw();
-    // layer.draw();
-    // interactiveLayer.draw();
+    master.handle('update',vars);
     requestAnimationFrame(update);
   }
 

@@ -141,6 +141,7 @@ ModeCores=(function(){
 
     this.update=function(){};
     this.draw=function(){
+      console.log("dr");
       for(var a in tCore.gridButtons){
         if(a%4==currentStep){
           tCore.gridButtons[a].highlight();

@@ -89,7 +89,7 @@
     }
 
     this.highlight=function(){
-      console.log("hight");
+      // console.log("hight");
       cColor=(active ? aColor : hColor);
       rect.change({fill:cColor});;
     };
@@ -157,8 +157,8 @@
     for(var a =0; a <16; a++){
       var props={
         group:{x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y},
-        text:{wrap:"char",y:-2,width:pitch,height:pitch,lineHeight:0.65,fontSize:13,fontFamily:"Lucida Console"},
-        rect:{width:pitch,height:pitch,stroke:'black'}
+        rect:{width:pitch,height:pitch,stroke:'black'},
+        text:{wrap:"char",y:-2,width:pitch,height:pitch,lineHeight:0.65,fontSize:13,fontFamily:"Lucida Console",fill:"black"},
       };
       // props.width=pitch;
       // props.height=pitch;
@@ -201,6 +201,7 @@
     this.draw=function(){
       for(var a in gridButtons){
         if(a%patLen==currentStep){
+          // console.log("hi");
           gridButtons[a].highlight();
         }else{
           gridButtons[a].unHighlight();
@@ -261,8 +262,8 @@
 
     this.onClock=function(){
       // evaluatePosMem();
+      // incomingQueue.push(0);
       if(stateSet.globalClock.getActive()){
-        // incomingQueue.push(0);
         outGo();
         inCom();
       }
