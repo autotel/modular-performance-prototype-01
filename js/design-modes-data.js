@@ -112,6 +112,31 @@
   this.dataMatrix=function(owner){
     var tCore=this;
 
+    var interfaceModes={
+      editSequence:{},//normal step sequencing
+      editEvents:{},//select what the sequencer events 0-16 make
+      livePerform:{},//press one button to trigger an event
+      editScale:{},//edit the scale map
+    }
+
+    var pMap=[
+      [0,0],
+      [1,32],
+      [1,33],
+      [1,34],
+      [1,35],
+      [1,36],
+      [1,37],
+      [1,38],
+      [1,39],
+      [1,40],
+      [1,41],
+      [1,42],
+      [1,43],
+      [1,44],
+      [1,45],
+    ];
+
     tCoreMan.Blank.call(this,owner);
     var gridButtons=[];
     this.gridButtons=gridButtons;
@@ -144,7 +169,7 @@
     //globalClock: wether to waiy for clock or step upon reception of signal
     //jump: wether to jump to the step designated by the signal or advance incrementally
     //bifurcate: wether to send the result of each row to a different output pin
-    var propNames=['--','globalClock','jump','bifurcate'];
+    var propNames=['touch','globalClock','jump','bifurcate'];
     for(var a =0;a <propNames.length; a++){
       var props={x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y};
       props.width=pitch;
@@ -155,6 +180,12 @@
       stateSet[propNames[a]]=rect;
       tCore.sprite.add(rect.sprite);
     }
+
+    stateSet.touch.sprite.on('click',function(){
+      var st=gridButtons[0].getData();
+      if(st!==false) outgoingQueue.push(st);
+      outGo();
+    });
 
     this.update=function(){};
     this.draw=function(){
@@ -171,6 +202,23 @@
     var outgoingQueue=[];
 
     function inCom(){
+      var headerReactionMap={
+        '+':function(message){
+          currentStep+=parseInt(message[1],16);
+        },'-':function(message){
+          currentStep-=parseInt(message[1],16);
+        },'*':function(message){
+          currentStep*=parseInt(message[1],16);
+        },'/':function(message){
+          currentStep/=parseInt(message[1],16);
+        },'%':function(message){
+          currentStep%=parseInt(message[1],16);
+        },'=':function(message){
+          currentStep=parseInt(message[1],16);
+        },'P':function(message){
+          synth.play(pMap[message[1]][0],pMap[message[1]][1]);
+        }
+      };
       function pStep(){
         currentStep%=patLen;
         var st=gridButtons[currentStep].getData();
@@ -181,19 +229,7 @@
       if/* we are responding to signals erratically*/(stateSet.jump.getActive()){
         for(var message of incomingQueue){
           if(message.length>0)
-            if(message[0]=="+"||message[0]=="<"){
-              currentStep+=parseInt(message[1],16);
-            }else if(message[0]=="-"||message[0]==">"){
-              currentStep-=parseInt(message[1],16);
-            }else if(message[0]=="*"){
-              currentStep*=parseInt(message[1],16);
-            }else if(message[0]=="/"){
-              currentStep/=parseInt(message[1],16);
-            }else if(message[0]=="="){
-              currentStep=parseInt(message[1],16);
-            }else{
-              console.log("synth("+message[1]+")");
-            }
+            headerReactionMap[message[0]](message);
           if(isNaN(currentStep)) currentStep=0;
           // currentStep=message;
           pStep();
@@ -216,9 +252,9 @@
     this.onClock=function(){
       // evaluatePosMem();
       if(stateSet.globalClock.getActive()){
-        incomingQueue.push(0);
-        inCom();
+        // incomingQueue.push(0);
         outGo();
+        inCom();
       }
     };
 

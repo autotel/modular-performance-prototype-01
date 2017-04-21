@@ -15,6 +15,13 @@ window.onload=function(){
     width: width,
     height: height
   });
+// don't know the listener, without internet right now
+  // window.on('resize',function(e){
+  //   var width = window.innerWidth;
+  //   var height = window.innerHeight;
+  //   stage.setWidth(width);
+  //   stage.setHeight(height);
+  // });
 
   for(var a=0; a<10; a++){
     var modl;
