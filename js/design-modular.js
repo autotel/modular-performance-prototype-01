@@ -4,7 +4,6 @@ ConnectorGraph=function(layer,from,to){
   // console.log({x:from.sprite.x,y:from.sprite.y},{x:to.sprite.x,y:to.sprite.y});
   var sprite=drawer.create('dynamicLine',{
     points: [{x:from.sprite.x,y:from.sprite.y},{x:to.sprite.x,y:to.sprite.y}],
-    stroke: 'black',
     strokeWidth: 2
   });
   layer.addChild(sprite);
@@ -47,12 +46,13 @@ ConnectorModule=function(parent,parentIndex,x,y){
   var props={
     group:{x:x,y:y,interactive:true},
     line:{
+      what:"dynamicLine",
       points: [{x:0, y:0},{ x:-10,y: 0}],
-      stroke: 0x0,
       strokeWidth: 2,
       alpha:1
     },
     circle:{
+      what:'dynamicCircle',
       x: 0,
       y: 0,
       radius: 4,
@@ -63,7 +63,9 @@ ConnectorModule=function(parent,parentIndex,x,y){
   }
   for(var a in props){
     if(a!="group") props[a].appendTo=this.group;
-    this[a]=drawer.create(a,props[a]);
+    var what=a;
+    if(props[a].hasOwnProperty("what")) what=props[a].what;
+    this[a]=drawer.create(what,props[a]);
   }
   this.sprite=this.group;
   var group=this.group;
@@ -73,12 +75,12 @@ ConnectorModule=function(parent,parentIndex,x,y){
   group.on('mouseover', function(e) {
     console.log("a");
     t_Cnm.hover=true;
-    circle.fill/*cad*/=(hColor);
+    circle.change({fill:hColor});;
   });
   group.on('mouseout', function(e) {
     // console.log("a");
     t_Cnm.hover=false;
-    circle.fill/*cad*/=(cColor);
+    circle.change({fill:cColor});;
   });
   mouse.on('mousedown',function(e){
     if(t_Cnm.hover)
@@ -88,12 +90,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
     if(t_Cnm.isDragging){
       // circle.position({x:0,y:0});
       // line.destroy();
-      line=drawer.create("line",{
-        points: [{x:0, y:0},{ x:-10,y: 0}],
-        stroke: 0x0,
-        strokeWidth: 2,
-        alpha:1
-      });
+
       t_Cnm.isDragging=false;
       t_Cnm.isClicked=false;
       var umo=mouse.getHoveredClickable();
@@ -109,12 +106,8 @@ ConnectorModule=function(parent,parentIndex,x,y){
       // console.log(e.offset);
       // circle.position(e.delta);
       // line.destroy();
-      line=drawer.create("line",{
-        points: [{x:0, y:0},e.delta],
-        stroke: 0x0,
-        strokeWidth: 2,
-        alpha:1
-      });
+      line.change({points: [{x:0, y:0},e.delta]});
+
       // line.setPoints([0,0,e.delta.x,e.delta.y]);
     }
   });
@@ -167,13 +160,14 @@ CodeModule=function(layer,id){
       interactive:true,
     },
     rect:{
+      what:'dynamicRect',
       x: -25,
       y: -25,
       width: 85,
       height: 85,
       fill: cColor,
       stroke: 0xFFFFFF,
-      strokeWidth: 4,
+      strokeWidth: 2,
       interactive:true,
     },
     text:{
@@ -195,7 +189,9 @@ CodeModule=function(layer,id){
 
   for(var a in props){
     if(a!="group") props[a].appendTo=this.group;
-    this[a]=drawer.create(a,props[a]);
+    var what=a;
+    if(props[a].hasOwnProperty("what")) what=props[a].what;
+    this[a]=drawer.create(what,props[a]);
   }
   // drawer.create("circle",{x:0,y:0,fill:0x0000ff,appendTo:tA});
   var group=this.group;
@@ -250,14 +246,16 @@ CodeModule=function(layer,id){
     group.y+=v.y;
   }
   group.on('mouseover', function(e) {
-    rect.lineColor/*cad*/=(hColor);
+    // rect.change({fill:hColor});;
+    rect.change({fill:hColor});
     // rect.fillAlpha=0.3;
     // rect.x++;
     t_Cm.handle('mouseenter',e);
   });
   group.on('mouseout', function(e) {
-    rect.fill/*cad*/=(cColor);
+    // rect.change({fill:cColor});;
     t_Cm.handle('mouseout',e);
+    rect.change({fill:cColor});
   });
   this.on('dragging',function(e){
     for(var conn of connectors){
@@ -270,14 +268,16 @@ CodeModule=function(layer,id){
     this.selected=true;
     this.handle('onselect',e);
     cColor=sColor;
-    rect.fill/*cad*/=(cColor);
+    // rect.change({fill:cColor});;
+    rect.change({fill:cColor});
   }
 
   this.deselect=function(e){
     this.selected=false;
     this.handle('ondeselect',e);
     cColor=color;
-    rect.fill/*cad*/=(cColor);
+    // rect.change({fill:cColor});;
+    rect.change({fill:cColor});
   }
 
   this.patchTo=function(who,n){

@@ -20,9 +20,9 @@ ModeCores=(function(){
 
 
   this.squareButton=function(props){
-    var hColor=props.hColor||"white";
-    var nColor=props.nColor||"grey";
-    var aColor=props.aColor||"blue";
+    var hColor=props.hColor||0xffffff;
+    var nColor=props.nColor||0xcccccc;
+    var aColor=props.aColor||0x00cc00;
     var cColor=nColor;
     var tSq=this;
 
@@ -33,25 +33,25 @@ ModeCores=(function(){
 //    var rect=new Konva.Rect(props);
     mouse.Clickable.call(this);
     rect.on('mouseover', function(e) {
-      rect.fill/*cad*/=(hColor);
+      rect.change({fill:hColor});;
       tSq.handle('mouseenter');
     });
     rect.on('mouseout', function(e) {
-      rect.fill/*cad*/=(cColor);
+      rect.change({fill:cColor});;
       tSq.handle('mouseout');
     });
     rect.on('click',function(){
       active=!active;
       cColor=(active ? aColor : nColor);
-      rect.fill/*cad*/=(cColor);
+      rect.change({fill:cColor});;
     });
     this.highlight=function(){
       cColor=(active ? aColor : hColor);
-      rect.fill/*cad*/=(cColor);
+      rect.change({fill:cColor});;
     };
     this.unHighlight=function(){
       cColor=(active ? aColor : (tSq.hover ? hColor : nColor));
-      rect.fill/*cad*/=(cColor);
+      rect.change({fill:cColor});;
     };
     this.getActive=function(){
       return active;
@@ -96,8 +96,8 @@ ModeCores=(function(){
       var props={x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y};
       props.width=pitch;
       props.height=pitch;
-      props.sColor="red";
-      props.nColor="#333333";
+      props.sColor=0xff0000;
+      props.nColor=0x333333;
       var rect=new tCoreMan.squareButton(props);
       owner.spriteStealsMouse(rect.sprite);
       stateSet[propNames[a]]=rect;

@@ -17,17 +17,21 @@
     dataButtons[myId]=this;
     var name=newName("databutton");
     var charScript="";
-    var hColor=props.hColor||"white";
-    var nColor=props.nColor||"grey";
-    var aColor=props.aColor||"red";
+    var hColor=props.hColor||0xffffff;
+    var nColor=props.nColor||0xcccccc;
+    var aColor=props.aColor||0xcc0000;
     var cColor=nColor;
     var tSq=this;
     props.rect.fill=cColor;
     var active=false;
-
+    props.rect.what='dynamicRect';
+    props.group.interactive=true;
+    props.rect.interactive=true;
     for(var a in props){
       if(a!="group") props[a].appendTo=this.group;
-      this[a]=drawer.create(a,props[a]);
+      var what=a;
+      if(props[a].hasOwnProperty("what")) what=props[a].what;
+      this[a]=drawer.create(what,props[a]);
     }
     var group=this.group;
     var rect=this.rect;
@@ -35,11 +39,11 @@
 
     mouse.Clickable.call(this);
     group.on('mouseover', function(e) {
-      rect.fill/*cad*/=(hColor);
+      rect.change({fill:hColor});;
       tSq.handle('mouseenter');
     });
     group.on('mouseout', function(e) {
-      rect.fill/*cad*/=(cColor);
+      rect.change({fill:cColor});;
       tSq.handle('mouseout');
     });
 
@@ -51,7 +55,7 @@
       console.log(name,charScript);
       active=!active;
       cColor=(active ? aColor : nColor);
-      rect.fill/*cad*/=(cColor);
+      rect.change({fill:cColor});;
       charScript="";
       if(active){
         keyboard.on('keydown.'+name,function(e){
@@ -85,11 +89,11 @@
 
     this.highlight=function(){
       cColor=(active ? aColor : hColor);
-      rect.fill/*cad*/=(cColor);
+      rect.change({fill:cColor});;
     };
     this.unHighlight=function(){
       cColor=(active ? aColor : (tSq.hover ? hColor : nColor));
-      rect.fill/*cad*/=(cColor);
+      rect.change({fill:cColor});;
     };
     this.getActive=function(){
       return active;

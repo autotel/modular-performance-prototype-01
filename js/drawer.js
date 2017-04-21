@@ -60,20 +60,33 @@ var drawer=(function(){
       return ret;
     },
     dynamicLine:function(props){
+      return create.dynamic('line',props);
+    },
+    dynamicRect:function(props){
+      return create.dynamic('rect',props);
+    },
+    dynamicText:function(props){
+      return create.dynamic('text',props);
+    },
+    dynamicCircle:function(props){
+      return create.dynamic('circle',props);
+    },
+    dynamic:function(what,props){
       var ret= new PIXI.Container();
-      console.log(props);
-      var myLine=create.line(props);
-      ret.addChild(myLine);
+      var appendTo=props.appendTo;
+      props.appendTo=ret;
+      var myElem=create[what](props);
+      ret.addChild(myElem);
       ret.change=function(newProps){
         ret.removeChildren();
-        myLine.destroy();
+        myElem.destroy();
         for(var a in newProps){
-          props[a]=newProps;
+          props[a]=newProps[a];
         }
-        console.log(props);
-        myLine=create.line(props);
-        ret.addChild(myLine);
+        myElem=create[what](props);
+        ret.addChild(myElem);
       }
+      if(appendTo) appendTo.addChild(ret);
       return ret;
     }
   };
