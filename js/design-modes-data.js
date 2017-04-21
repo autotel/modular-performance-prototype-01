@@ -57,8 +57,9 @@
       active=!active;
       cColor=(active ? aColor : nColor);
       rect.change({fill:cColor});;
-      charScript="";
       if(active){
+        charScript="";
+        text.setText(charScript);
         keyboard.on('keydown.'+name,function(e){
           console.log(e);
           if (e.keyCode==8){
