@@ -3,39 +3,14 @@
 
 
 var modules=[];
-var connectorsLayer=drawer.create('group');
-var interactiveLayer=drawer.create('group');
-var layer = drawer.create('group');
+var connectorsLayer=drawer.create('layer');
+var interactiveLayer=drawer.create('layer');
+var layer = drawer.create('layer');
 var stage;
 window.onload=function(){
-  var width = window.innerWidth;
-  var height = window.innerHeight;
-//  // var stage = new Konva.Stage({
-  //   container: 'stage',
-  //   width: width,
-  //   height: height
-  // });
-
-    //Create the renderer
-  var renderer = PIXI.autoDetectRenderer(window.innerWidth,window.innerHeight, {backgroundColor : 0x1099bb});
-  //Add the canvas to the HTML document
-  document.body.appendChild(renderer.view);
-  //Create a container object called the `stage`
-  stage = new PIXI.Container();
-  //Tell the `renderer` to `render` the `stage`
-
-  renderer.view.style.position = "absolute";
-  renderer.view.style.display = "block";
-  renderer.autoResize = true;
-
+  drawer.start();
 // don't know the listener, without internet right now
-  window.onresize = function(event) {
-    renderer.resize(window.innerWidth, window.innerHeight);
-  //   var width = window.innerWidth;
-  //   var height = window.innerHeight;
-  //   stage.setWidth(width);
-  //   stage.setHeight(height);
-  };
+  
 
   stage.addChild(connectorsLayer);
   stage.addChild(interactiveLayer);
@@ -79,7 +54,7 @@ window.onload=function(){
   function update(vars) {
     for(var modl of modules)
       modl.update(vars);
-    renderer.render(stage);
+    drawer.update();
     master.handle('update',vars);
     // connectorsLayer.draw();
     // layer.draw();

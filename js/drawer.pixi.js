@@ -1,5 +1,6 @@
 //pixi js
 var drawer=(function(){
+  var renderer;
   this.start=function(){
     var width = window.innerWidth;
     var height = window.innerHeight;
@@ -8,18 +9,26 @@ var drawer=(function(){
     //   width: width,
     //   height: height
     // });
-
       //Create the renderer
-    var renderer = PIXI.autoDetectRenderer(window.innerWidth,window.innerHeight, {backgroundColor : 0x1099bb});
+    renderer = PIXI.autoDetectRenderer(window.innerWidth,window.innerHeight, {backgroundColor : 0x1099bb});
     //Add the canvas to the HTML document
     document.body.appendChild(renderer.view);
     //Create a container object called the `stage`
     stage = new PIXI.Container();
     //Tell the `renderer` to `render` the `stage`
-
     renderer.view.style.position = "absolute";
     renderer.view.style.display = "block";
     renderer.autoResize = true;
+    window.onresize = function(event) {
+      renderer.resize(window.innerWidth, window.innerHeight);
+    //   var width = window.innerWidth;
+    //   var height = window.innerHeight;
+    //   stage.setWidth(width);
+    //   stage.setHeight(height);
+    };
+  }
+  this.update=function(){
+    renderer.render(stage);
   }
   var expand=function(){
     this.move=function(x,y){
