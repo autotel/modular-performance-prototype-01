@@ -10,7 +10,7 @@ var drawer=(function(){
     // });
 
       //Create the renderer
-    var renderer = PIXI.autoDetectRenderer(window.innerWidth,window.innerHeight, {backgroundColor : 0x1099bb});
+    var renderer = PIXI.autoDetectRenderer(window.innerWidth,window.innerHeight, {backgroundColor : "#1099bb"});
     //Add the canvas to the HTML document
     document.body.appendChild(renderer.view);
     //Create a container object called the `stage`
@@ -31,26 +31,26 @@ var drawer=(function(){
     text:function(props){
       var ret = new PIXI.Text('',props.text);
       ret._AETNAME="text";
-      if(props.appendTo) props.appendTo.addChild(ret);
+      if(props.appendTo) props.appendTo.add(ret);
       return ret;
     },
     rect:function(props){
       var ret = new PIXI.Graphics();
       ret._AETNAME="rect";
       if((props.color|props.fill)!==undefined) ret.beginFill(props.color|props.fill);
-      if((props.stroke|props.strokeWidth)!==undefined) ret.lineStyle(props.strokeWidth|1, props.stroke|0x00, props.strokeAlpha|1);
+      if((props.stroke|props.strokeWidth)!==undefined) ret.lineStyle(props.strokeWidth|1, props.stroke|"#00", props.strokeAlpha|1);
       ret.drawRect(props.x, props.y, props.width, props.height);
       ret.endFill();
-      if(props.appendTo) props.appendTo.addChild(ret);
+      if(props.appendTo) props.appendTo.add(ret);
       return ret;
     },
     circle:function(props){
       var ret = new PIXI.Graphics();
       ret._AETNAME="circle";
       if((props.color|props.fill)!==undefined) ret.beginFill(props.color|props.fill);
-      if((props.stroke|props.strokeWidth)!==undefined) ret.lineStyle(props.strokeWidth|1, props.stroke|0x00, props.strokeAlpha|1);
+      if((props.stroke|props.strokeWidth)!==undefined) ret.lineStyle(props.strokeWidth|1, props.stroke|"#00", props.strokeAlpha|1);
       ret.drawCircle(props.x|0, props.y|0, props.radius|0);
-      if(props.appendTo) props.appendTo.addChild(ret);
+      if(props.appendTo) props.appendTo.add(ret);
       return ret;
     },
     group:function(props){
@@ -62,7 +62,7 @@ var drawer=(function(){
         ret[a]=props[a];
       }
 
-      if(props.appendTo) props.appendTo.addChild(ret);
+      if(props.appendTo) props.appendTo.add(ret);
       return ret;
     },
     layer:function(props){
@@ -80,7 +80,7 @@ var drawer=(function(){
           ret.lineTo(props.points[a].x,props.points[a].y);
         }
       }
-      if(props.appendTo) props.appendTo.addChild(ret);
+      if(props.appendTo) props.appendTo.add(ret);
       return ret;
     },
     dynamicLine:function(props){
@@ -100,7 +100,7 @@ var drawer=(function(){
       var appendTo=props.appendTo;
       props.appendTo=ret;
       var myElem=create[what](props);
-      ret.addChild(myElem);
+      ret.add(myElem);
       ret.change=function(newProps){
         ret.removeChildren();
         myElem.destroy();
@@ -108,9 +108,9 @@ var drawer=(function(){
           props[a]=newProps[a];
         }
         myElem=create[what](props);
-        ret.addChild(myElem);
+        ret.add(myElem);
       }
-      if(appendTo) appendTo.addChild(ret);
+      if(appendTo) appendTo.add(ret);
       return ret;
     }
   };

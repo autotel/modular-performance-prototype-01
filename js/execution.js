@@ -10,22 +10,33 @@ var stage;
 window.onload=function(){
   drawer.start();
 // don't know the listener, without internet right now
-  
 
-  stage.addChild(connectorsLayer);
-  stage.addChild(interactiveLayer);
-  stage.addChild(layer);
+
+  drawer.stage.add(connectorsLayer);
+  drawer.stage.add(interactiveLayer);
+  drawer.stage.add(layer);
+
+  // layer.add(new Konva.Circle({
+  //     x: stage.getWidth() / 2,
+  //     y: stage.getHeight() / 2,
+  //     radius: 70,
+  //     fill: 'red',
+  //     stroke: 'black',
+  //     strokeWidth: 4
+  //   }));
+  //   layer.draw();
+
   var b=drawer.create("group",{appendTo:layer});
   var a=drawer.create("group",{appendTo:b});
-  drawer.create('circle',{fill:0xff0000,x:20,y:20,radius:10,appendTo:a});
+  drawer.create('circle',{fill:"#ff0000",x:20,y:20,radius:10,appendTo:a});
   // var rectangle = new PIXI.Graphics();
-  // rectangle.lineStyle(4, 0xFF3300, 1);
-  // rectangle.beginFill(0x66CCFF);
+  // rectangle.lineStyle(4, "#FF3300", 1);
+  // rectangle.beginFill("#66CCFF");
   // rectangle.drawRect(0, 0, 64, 64);
   // rectangle.endFill();
   // rectangle.x = 170;
   // rectangle.y = 170;
-  // stage.addChild(rectangle);
+  // stage.add(rectangle);
 
   for(var a=0; a<10; a++){
     var modl;
@@ -37,7 +48,7 @@ window.onload=function(){
     }else*/{
       modl.mode(ModeCores.dataMatrix);
     }
-    modl.move({x:100,y:0})
+    modl.move({x:100,y:0});
     modules[a]=modl;
   }
 
@@ -55,7 +66,7 @@ window.onload=function(){
     for(var modl of modules)
       modl.update(vars);
     drawer.update();
-    master.handle('update',vars);
+    // master.handle('update',vars);
     // connectorsLayer.draw();
     // layer.draw();
     // interactiveLayer.draw();

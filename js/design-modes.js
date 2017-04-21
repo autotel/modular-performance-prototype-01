@@ -20,13 +20,13 @@ ModeCores=(function(){
 
 
   this.squareButton=function(props){
-    var hColor=props.hColor||0xffffff;
-    var nColor=props.nColor||0xcccccc;
-    var aColor=props.aColor||0x00cc00;
+    var hColor=props.hColor||"#ffffff";
+    var nColor=props.nColor||"#cccccc";
+    var aColor=props.aColor||"#00cc00";
     var cColor=nColor;
     var tSq=this;
 
-    var rect=drawer.create('rect',props);
+    var rect=drawer.create('dynamicRect',props);
 
     // var rect=this.rect;
     var active=false;
@@ -96,8 +96,8 @@ ModeCores=(function(){
       var props={x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y};
       props.width=pitch;
       props.height=pitch;
-      props.sColor=0xff0000;
-      props.nColor=0x333333;
+      props.sColor="#ff0000";
+      props.nColor="#333333";
       var rect=new tCoreMan.squareButton(props);
       owner.spriteStealsMouse(rect.sprite);
       stateSet[propNames[a]]=rect;

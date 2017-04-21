@@ -17,9 +17,9 @@
     dataButtons[myId]=this;
     var name=newName("databutton");
     var charScript="";
-    var hColor=props.hColor||0xffffff;
-    var nColor=props.nColor||0xcccccc;
-    var aColor=props.aColor||0xcc0000;
+    var hColor=props.hColor||"#ffffff";
+    var nColor=props.nColor||"#cccccc";
+    var aColor=props.aColor||"#cc0000";
     var cColor=nColor;
     var tSq=this;
     props.rect.fill=cColor;
@@ -35,6 +35,7 @@
     }
     var group=this.group;
     var rect=this.rect;
+    var text=this.text;
     this.sprite=group;
 
     mouse.Clickable.call(this);
@@ -88,6 +89,7 @@
     }
 
     this.highlight=function(){
+      console.log("hight");
       cColor=(active ? aColor : hColor);
       rect.change({fill:cColor});;
     };
@@ -149,14 +151,14 @@
     var gridButtons=[];
     this.gridButtons=gridButtons;
     var textGraph=new drawer.create('text',{});
-    this.sprite.addChild(textGraph);
+    this.sprite.add(textGraph);
     var pitch=18;
     var displace={x:-15,y:-14};
     for(var a =0; a <16; a++){
       var props={
         group:{x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y},
         text:{wrap:"char",y:-2,width:pitch,height:pitch,lineHeight:0.65,fontSize:13,fontFamily:"Lucida Console"},
-        rect:{width:pitch,height:pitch}
+        rect:{width:pitch,height:pitch,stroke:'black'}
       };
       // props.width=pitch;
       // props.height=pitch;
@@ -165,7 +167,7 @@
       var rect=new tCoreMan.dataButton(props);
       owner.spriteStealsMouse(rect.sprite);
       gridButtons.push(rect);
-      tCore.sprite.addChild(rect.sprite);
+      tCore.sprite.add(rect.sprite);
     }
 
     var currentStep=0;
@@ -186,7 +188,7 @@
       var rect=new tCoreMan.squareButton(props);
       owner.spriteStealsMouse(rect.sprite);
       stateSet[propNames[a]]=rect;
-      tCore.sprite.addChild(rect.sprite);
+      tCore.sprite.add(rect.sprite);
     }
 
     stateSet.touch.sprite.on('click',function(){
