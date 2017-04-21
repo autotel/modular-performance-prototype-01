@@ -1,17 +1,18 @@
 
 ConnectorGraph=function(layer,from,to){
   console.log("nlin3");
-  console.log([from.sprite.attrs.x, from.sprite.attrs.y, to.sprite.attrs.x, to.sprite.attrs.y]);
-  var sprite= new Konva.Line({
-    points: [from.sprite.attrs.x, from.sprite.attrs.y, to.sprite.attrs.x, to.sprite.attrs.y],
+  // console.log({x:from.sprite.x,y:from.sprite.y},{x:to.sprite.x,y:to.sprite.y});
+  var sprite=drawer.create('dynamicLine',{
+    points: [{x:from.sprite.x,y:from.sprite.y},{x:to.sprite.x,y:to.sprite.y}],
     stroke: 'black',
-    strokeWidth: 2,
-    // lineCap: 'round',
-    // lineJoin: 'round'
+    strokeWidth: 2
   });
-  layer.add(sprite);
+  layer.addChild(sprite);
   this.update=function(e){
-    sprite.setPoints([from.sprite.absolute.x, from.sprite.absolute.y, to.sprite.attrs.x, to.sprite.attrs.y]);
+    // sprite.setPoints({x:from.sprite.x,y:from.sprite.y},{x:to.sprite.x,y:to.sprite.y});
+    sprite.change({
+      points: [{x:from.sprite.absolute.x,y:from.sprite.absolute.y},{x:to.sprite.x,y:to.sprite.y}]
+    });
   }
   this.highlight=function(){
     this.setStroke('red');
@@ -19,7 +20,7 @@ ConnectorGraph=function(layer,from,to){
       this.setStroke('black');
     },200);
   }
-  master.on('frame',this.update);
+  master.on('update',this.update);
 
 }
 createConnection=function(parent,n,a,b){
@@ -42,31 +43,42 @@ ConnectorModule=function(parent,parentIndex,x,y){
   var hColor="#000000";
   var sColor="#ffcccc";
   var t_Cnm=this;
-  var sprite=new Konva.Group({x:x,y:y});
-  var line = new Konva.Line({
-    points: [0, 0, -10, 0],
-    stroke: 'black',
-    strokeWidth: 2,
-    lineCap: 'round',
-    lineJoin: 'round'
-  });
-  var circle = new Konva.Circle({
-    x: 0,
-    y: 0,
-    radius: 4,
-    fill: 'white',
-    stroke: 'black',
-    strokeWidth: 3
-  });
-  circle.on('mouseover', function(e) {
-    // console.log("a");
+
+  var props={
+    group:{x:x,y:y,interactive:true},
+    line:{
+      points: [{x:0, y:0},{ x:-10,y: 0}],
+      stroke: 0x0,
+      strokeWidth: 2,
+      alpha:1
+    },
+    circle:{
+      x: 0,
+      y: 0,
+      radius: 4,
+      fill: 0xffffff,
+      strokeWidth: 1,
+      interactive:true
+    }
+  }
+  for(var a in props){
+    if(a!="group") props[a].appendTo=this.group;
+    this[a]=drawer.create(a,props[a]);
+  }
+  this.sprite=this.group;
+  var group=this.group;
+  var line=this.line;
+  var circle=this.circle;
+
+  group.on('mouseover', function(e) {
+    console.log("a");
     t_Cnm.hover=true;
-    circle.setFill(hColor);
+    circle.fill/*cad*/=(hColor);
   });
-  circle.on('mouseout', function(e) {
+  group.on('mouseout', function(e) {
     // console.log("a");
     t_Cnm.hover=false;
-    circle.setFill(cColor);
+    circle.fill/*cad*/=(cColor);
   });
   mouse.on('mousedown',function(e){
     if(t_Cnm.hover)
@@ -75,7 +87,13 @@ ConnectorModule=function(parent,parentIndex,x,y){
   mouse.on('mouseup',function(e){
     if(t_Cnm.isDragging){
       // circle.position({x:0,y:0});
-      line.setPoints([0,0,-10,0]);
+      // line.destroy();
+      line=drawer.create("line",{
+        points: [{x:0, y:0},{ x:-10,y: 0}],
+        stroke: 0x0,
+        strokeWidth: 2,
+        alpha:1
+      });
       t_Cnm.isDragging=false;
       t_Cnm.isClicked=false;
       var umo=mouse.getHoveredClickable();
@@ -90,7 +108,14 @@ ConnectorModule=function(parent,parentIndex,x,y){
       // console.log("r");
       // console.log(e.offset);
       // circle.position(e.delta);
-      line.setPoints([0,0,e.delta.x,e.delta.y]);
+      // line.destroy();
+      line=drawer.create("line",{
+        points: [{x:0, y:0},e.delta],
+        stroke: 0x0,
+        strokeWidth: 2,
+        alpha:1
+      });
+      // line.setPoints([0,0,e.delta.x,e.delta.y]);
     }
   });
 
@@ -104,9 +129,6 @@ ConnectorModule=function(parent,parentIndex,x,y){
     }
     return clickTaken;
   }
-  sprite.add(line);
-  sprite.add(circle);
-  this.sprite=sprite;
   this.plug=function(who){
     if(who){
       t_Cnm.child=who;
@@ -131,42 +153,70 @@ CodeModule=function(layer,id){
   ModuleBase.call(this);
   mouse.Draggable.call(this);
   var t_Cm=this;
-  var color="#cccccc";
+  var color=0xcccccc;
   var cColor=color;
-  var hColor="#000000";
-  var sColor="#555555";
+  var hColor=0x000000;
+  var sColor=0x555555;
   var connectorGraphs=[];
   this.id=id;
   this.selected=false;
   this.hover=false;
-  var group = new Konva.Group({
-    // draggable: true
-  });
+  var props={
+    group:{
+      appendTo:layer,
+      interactive:true,
+    },
+    rect:{
+      x: -25,
+      y: -25,
+      width: 85,
+      height: 85,
+      fill: cColor,
+      stroke: 0xFFFFFF,
+      strokeWidth: 4,
+      interactive:true,
+    },
+    text:{
+      x:-25,
+      y:-50,
+      text: 'id: '+id,
+      fontFamily: 'Roboto',
+      fontSize: 18,
+      padding: 5,
+      fill: 'white'
+    },
+    circle:{
+      x:10,
+      y:10,
+      radius:3,
+      fill:0x00ff00,
+    }
+  }
+
+  for(var a in props){
+    if(a!="group") props[a].appendTo=this.group;
+    this[a]=drawer.create(a,props[a]);
+  }
+  // drawer.create("circle",{x:0,y:0,fill:0x0000ff,appendTo:tA});
+  var group=this.group;
   this.sprite=group;
-  var rect = new Konva.Rect({
-    x: -25,
-    y: -25,
-    width: 85,
-    height: 85,
-    fill: cColor,
-    stroke: 'black',
-    strokeWidth: 4,
-    // draggable: true
-  });
+  var tooltip=this.text;
+  var rect=this.rect;
+  var sprite=this.group;
   var connectors=[];
-  var tooltip = new Konva.Label({
-    opacity: 0.75
-  });
-  tooltip.add(new Konva.Text({
-    x:-25,
-    y:-50,
-    text: 'id: '+id,
-    fontFamily: 'Roboto',
-    fontSize: 18,
-    padding: 5,
-    fill: 'white'
-  }));
-  group.add(rect);
+  // layer.addChild(group);
+//  // var tooltip = new Konva.Label({
+  //   opacity: 0.75
+  // });
+//  // tooltip.add(new Konva.Text({
+  //   x:-25,
+  //   y:-50,
+  //   text: 'id: '+id,
+  //   fontFamily: 'Roboto',
+  //   fontSize: 18,
+  //   padding: 5,
+  //   fill: 'white'
+  // }));
 
 
   var HOR=false;
@@ -178,53 +228,56 @@ CodeModule=function(layer,id){
     sprite.on('mouseout',function(){HOR=false});
   }
   this.mode=function(modeProto){
+
     t_Cm.modeCore=new modeProto(t_Cm);
-    group.add(t_Cm.modeCore.sprite);
+    group.addChild(t_Cm.modeCore.sprite);
   }
 
-  var t_Sz=[rect.getWidth(),rect.getHeight()];
+  var t_Sz=[rect.width,rect.height];
   var t_q=4;
   for(var a=0; a<t_q; a++){
     var circle=new ConnectorModule(t_Cm,a,t_Sz[0]-15,10*a-10);
-    group.add(circle.sprite);
+    group.addChild(circle.sprite);
     t_Cm.spriteStealsMouse(circle.sprite);
     connectors[a]=circle;
   }
-  group.add(tooltip);
-  layer.add(group);
   this.position=function(v){
-    group.position(v);
+    group.x=v.x;
+    group.y=v.y;
   }
   this.move=function(v){
-    group.move(v);
+    group.x+=v.x;
+    group.y+=v.y;
   }
   group.on('mouseover', function(e) {
-    rect.setFill(hColor);
+    rect.lineColor/*cad*/=(hColor);
+    // rect.fillAlpha=0.3;
+    // rect.x++;
     t_Cm.handle('mouseenter',e);
   });
   group.on('mouseout', function(e) {
-    rect.setFill(cColor);
+    rect.fill/*cad*/=(cColor);
     t_Cm.handle('mouseout',e);
   });
   this.on('dragging',function(e){
     for(var conn of connectors){
       conn.sprite.absolute={};
-      conn.sprite.absolute.x=t_Cm.sprite.attrs.x+conn.sprite.attrs.x;
-      conn.sprite.absolute.y=t_Cm.sprite.attrs.y+conn.sprite.attrs.y;
+      conn.sprite.absolute.x=t_Cm.sprite.x+conn.sprite.x;
+      conn.sprite.absolute.y=t_Cm.sprite.y+conn.sprite.y;
     }
   });
   this.select=function(e){
     this.selected=true;
     this.handle('onselect',e);
     cColor=sColor;
-    rect.setFill(cColor);
+    rect.fill/*cad*/=(cColor);
   }
 
   this.deselect=function(e){
     this.selected=false;
     this.handle('ondeselect',e);
     cColor=color;
-    rect.setFill(cColor);
+    rect.fill/*cad*/=(cColor);
   }
 
   this.patchTo=function(who,n){

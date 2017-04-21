@@ -176,8 +176,8 @@ ModuleBase=function(){
   onHandlers.call(this);
   // console.log("new module");
   var t_M=this;
-  this.draw=function(vars){
-    this.handle('draw',vars);
+  this.update=function(vars){
+    this.handle('update',vars);
   }
   this.codeString="";
   this.codeActive={};

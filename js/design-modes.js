@@ -2,7 +2,7 @@ ModeCores=(function(){
   var tCoreMan=this;
   this.Blank=function(owner){
     var tCore=this;
-    this.sprite=new Konva.Group();
+//    this.sprite=new Konva.Group();
     this.update=function(){};
     this.draw=function(){};
     this.onClock=function(){};
@@ -14,7 +14,7 @@ ModeCores=(function(){
     };
     metronome.on('beat',function(){tCore.onClock()});
     metronome.on('afterbeat',function(){tCore.onAfterClock()});
-    master.on('frame',function(){tCore.draw();tCore.update();});
+    master.on('update',function(){tCore.draw();tCore.update();});
   }
 
 
@@ -25,30 +25,33 @@ ModeCores=(function(){
     var aColor=props.aColor||"blue";
     var cColor=nColor;
     var tSq=this;
-    props.fill=cColor;
+
+    var rect=drawer.create('rect',props);
+
+    // var rect=this.rect;
     var active=false;
-    var rect=new Konva.Rect(props);
+//    var rect=new Konva.Rect(props);
     mouse.Clickable.call(this);
     rect.on('mouseover', function(e) {
-      rect.setFill(hColor);
+      rect.fill/*cad*/=(hColor);
       tSq.handle('mouseenter');
     });
     rect.on('mouseout', function(e) {
-      rect.setFill(cColor);
+      rect.fill/*cad*/=(cColor);
       tSq.handle('mouseout');
     });
     rect.on('click',function(){
       active=!active;
       cColor=(active ? aColor : nColor);
-      rect.setFill(cColor);
+      rect.fill/*cad*/=(cColor);
     });
     this.highlight=function(){
       cColor=(active ? aColor : hColor);
-      rect.setFill(cColor);
+      rect.fill/*cad*/=(cColor);
     };
     this.unHighlight=function(){
       cColor=(active ? aColor : (tSq.hover ? hColor : nColor));
-      rect.setFill(cColor);
+      rect.fill/*cad*/=(cColor);
     };
     this.getActive=function(){
       return active;
@@ -64,7 +67,7 @@ ModeCores=(function(){
     tCoreMan.Blank.call(this,owner);
     var gridButtons=[];
     this.gridButtons=gridButtons;
-    var textGraph=new Konva.Text();
+//    var textGraph=new Konva.Text();
     this.sprite.add(textGraph);
     var pitch=10;
     var displace={x:-15,y:-14};

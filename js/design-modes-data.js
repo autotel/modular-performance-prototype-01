@@ -22,20 +22,24 @@
     var aColor=props.aColor||"red";
     var cColor=nColor;
     var tSq=this;
-    props.fill=cColor;
+    props.rect.fill=cColor;
     var active=false;
-    var rect=new Konva.Rect(props.rect);
-    var group=new Konva.Group(props.group);
-    var text=new Konva.Text(props.text);
-    group.add(rect);
-    group.add(text);
+
+    for(var a in props){
+      if(a!="group") props[a].appendTo=this.group;
+      this[a]=drawer.create(a,props[a]);
+    }
+    var group=this.group;
+    var rect=this.rect;
+    this.sprite=group;
+
     mouse.Clickable.call(this);
     group.on('mouseover', function(e) {
-      rect.setFill(hColor);
+      rect.fill/*cad*/=(hColor);
       tSq.handle('mouseenter');
     });
     group.on('mouseout', function(e) {
-      rect.setFill(cColor);
+      rect.fill/*cad*/=(cColor);
       tSq.handle('mouseout');
     });
 
@@ -47,7 +51,7 @@
       console.log(name,charScript);
       active=!active;
       cColor=(active ? aColor : nColor);
-      rect.setFill(cColor);
+      rect.fill/*cad*/=(cColor);
       charScript="";
       if(active){
         keyboard.on('keydown.'+name,function(e){
@@ -81,11 +85,11 @@
 
     this.highlight=function(){
       cColor=(active ? aColor : hColor);
-      rect.setFill(cColor);
+      rect.fill/*cad*/=(cColor);
     };
     this.unHighlight=function(){
       cColor=(active ? aColor : (tSq.hover ? hColor : nColor));
-      rect.setFill(cColor);
+      rect.fill/*cad*/=(cColor);
     };
     this.getActive=function(){
       return active;
@@ -136,12 +140,12 @@
       [1,44],
       [1,45],
     ];
-
+    this.sprite=drawer.create('group',{});
     tCoreMan.Blank.call(this,owner);
     var gridButtons=[];
     this.gridButtons=gridButtons;
-    var textGraph=new Konva.Text();
-    this.sprite.add(textGraph);
+    var textGraph=new drawer.create('text',{});
+    this.sprite.addChild(textGraph);
     var pitch=18;
     var displace={x:-15,y:-14};
     for(var a =0; a <16; a++){
@@ -150,14 +154,14 @@
         text:{wrap:"char",y:-2,width:pitch,height:pitch,lineHeight:0.65,fontSize:13,fontFamily:"Lucida Console"},
         rect:{width:pitch,height:pitch}
       };
-      props.width=pitch;
-      props.height=pitch;
-      props.fill="red";
+      // props.width=pitch;
+      // props.height=pitch;
+      // props.fill="red";
       // props.stroke="black";
       var rect=new tCoreMan.dataButton(props);
       owner.spriteStealsMouse(rect.sprite);
       gridButtons.push(rect);
-      tCore.sprite.add(rect.sprite);
+      tCore.sprite.addChild(rect.sprite);
     }
 
     var currentStep=0;
@@ -178,7 +182,7 @@
       var rect=new tCoreMan.squareButton(props);
       owner.spriteStealsMouse(rect.sprite);
       stateSet[propNames[a]]=rect;
-      tCore.sprite.add(rect.sprite);
+      tCore.sprite.addChild(rect.sprite);
     }
 
     stateSet.touch.sprite.on('click',function(){
