@@ -34,6 +34,7 @@ createConnection=function(parent,n,a,b){
 removeConnection=function(connector){
 
 }
+//pendant:connector module should be part of the mode... maybe
 ConnectorModule=function(parent,parentIndex,x,y){
   this.child=false;
   this.hover=false;
@@ -57,7 +58,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
       what:'dynamicCircle',
       x: 0,
       y: 0,
-      radius: 4,
+      radius: 25,
       fill: "#ffffff",
       strokeWidth: 1,
       interactive:true,
@@ -152,21 +153,28 @@ CodeModule=function(layer,id){
   var cColor=color;
   var hColor="#000000";
   var sColor="#555555";
-  var connectorGraphs=[];
+  var connectors=[];
   this.id=id;
   this.selected=false;
   this.hover=false;
+
+  this.group=drawer.create("group",{appendTo:layer,interactive:true});
+  var group=this.group;
+  this.sprite=group;
+
+  //pendant: we are creating only one connector surface, thus should not be array anymore
+  var circle=new ConnectorModule(t_Cm,a,0,0);
+  group.add(circle.sprite);
+
+  connectors[0]=circle;
+
   var props={
-    group:{
-      appendTo:layer,
-      interactive:true,
-    },
-    rect:{
-      what:'dynamicRect',
-      x: -25,
-      y: -25,
-      width: 85,
-      height: 85,
+    dragBody:{
+      what:'dynamicCircle',
+      x: 0,
+      y: 0,
+      width: 30,
+      height: 30,
       fill: cColor,
       stroke: "#FFFFFF",
       strokeWidth: 2,
@@ -181,12 +189,6 @@ CodeModule=function(layer,id){
       padding: 5,
       fill: 'white'
     },
-    circle:{
-      x:10,
-      y:10,
-      radius:3,
-      fill:"#00ff00",
-    }
   }
 
   for(var a in props){
@@ -196,26 +198,10 @@ CodeModule=function(layer,id){
     this[a]=drawer.create(what,props[a]);
   }
   // drawer.create("circle",{x:0,y:0,fill:"#0000ff",appendTo:tA});
-  var group=this.group;
-  this.sprite=group;
   var tooltip=this.text;
-  var rect=this.rect;
+  var dragBody=this.dragBody;
   var sprite=this.group;
   var connectors=[];
-  // layer.add(group);
-//  // var tooltip = new Konva.Label({
-  //   opacity: 0.75
-  // });
-//  // tooltip.add(new Konva.Text({
-  //   x:-25,
-  //   y:-50,
-  //   text: 'id: '+id,
-  //   fontFamily: 'Roboto',
-  //   fontSize: 18,
-  //   padding: 5,
-  //   fill: 'white'
-  // }));
-
 
   var HOR=false;
   this.overrideHover=function(){
@@ -225,39 +211,33 @@ CodeModule=function(layer,id){
     sprite.on('mouseover',function(){HOR=true});
     sprite.on('mouseout',function(){HOR=false});
   }
+  t_Cm.spriteStealsMouse(circle.sprite);
+
   this.mode=function(modeProto){
 
     t_Cm.modeCore=new modeProto(t_Cm);
     group.add(t_Cm.modeCore.sprite);
   }
 
-  var t_Sz=[rect.width(),rect.height()];
-  console.log("nanlook",t_Sz);
-  var t_q=4;
-  for(var a=0; a<t_q; a++){
-    var circle=new ConnectorModule(t_Cm,a,t_Sz[0]-15,10*a-10);
-    group.add(circle.sprite);
-    t_Cm.spriteStealsMouse(circle.sprite);
-    connectors[a]=circle;
-  }
+
   this.position=function(v){
     group.position(v);
   }
   this.move=function(v){
     group.move({x:v.x,y:v.y});
   }
-  rect.on('mouseover', function(e) {
+  dragBody.on('mouseover', function(e) {
     console.log("enmt");
-    // rect.change({fill:hColor});;
-    rect.change({fill:hColor});
-    // rect.fillAlpha=0.3;
-    // rect.x++;
+    // dragBody.change({fill:hColor});;
+    dragBody.change({fill:hColor});
+    // dragBody.fillAlpha=0.3;
+    // dragBody.x++;
     t_Cm.handle('mouseenter',e);
   });
-  rect.on('mouseout', function(e) {
-    // rect.change({fill:cColor});;
+  dragBody.on('mouseout', function(e) {
+    // dragBody.change({fill:cColor});;
     t_Cm.handle('mouseout',e);
-    rect.change({fill:cColor});
+    dragBody.change({fill:cColor});
   });
   this.on('dragging',function(e){
     for(var conn of connectors){
@@ -270,16 +250,16 @@ CodeModule=function(layer,id){
     this.selected=true;
     this.handle('onselect',e);
     cColor=sColor;
-    // rect.change({fill:cColor});;
-    rect.change({fill:cColor});
+    // dragBody.change({fill:cColor});;
+    dragBody.change({fill:cColor});
   }
 
   this.deselect=function(e){
     this.selected=false;
     this.handle('ondeselect',e);
     cColor=color;
-    // rect.change({fill:cColor});;
-    rect.change({fill:cColor});
+    // dragBody.change({fill:cColor});;
+    dragBody.change({fill:cColor});
   }
 
   this.patchTo=function(who,n){
