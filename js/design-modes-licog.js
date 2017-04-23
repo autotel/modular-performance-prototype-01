@@ -4,6 +4,7 @@
 
   this.licog=function(owner){
     var tCore=this;
+    
     var pMap=[
       [0,0],
       [1,32],

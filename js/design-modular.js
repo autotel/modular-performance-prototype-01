@@ -75,6 +75,8 @@ ConnectorGraph=function(layer,from,to){
     },200);
   }
 
+
+
   indicator.on('mouseover', function(e) {
     console.log("a");
     indicator.hover=true;
@@ -105,6 +107,18 @@ ConnectorGraph=function(layer,from,to){
   });
 
   mouse.Draggable.call(indicator);
+  //pendant: the way that clickables are build, make essential that the mouse
+  //hover detection goes first, then the apply of mouse and then the event
+  //handlers that come from the construct. This is very cumbersome
+  indicator.on('select',function(){
+    console.log("select");
+    cColor=hColor;
+    indicator.change({fill:cColor});
+  });
+  indicator.on('deselect',function(){
+    cColor=color;
+    indicator.change({fill:cColor});
+  });
 
   master.on('update',this.update);
 
@@ -318,6 +332,13 @@ CodeModule=function(layer,id){
   this.move=function(v){
     group.move({x:v.x,y:v.y});
   }
+  //pendant: I am not being consisten in how an object that extends a clockable,
+  //implements the click detection. some are calling the clickable handle when
+  //the sprite handles the over and out events, and extending clickable itself
+  //some others are extending clickable on the sprite
+  //perhaps this one is the best method... but anyways I think that a object to
+  //become clickable should only call one function, passing to thtat function
+  //the sprite that detects the mouse
   dragBody.on('mouseover', function(e) {
     // t_Cm.handle('mouseover',e);
     console.log("enmt");
@@ -338,21 +359,15 @@ CodeModule=function(layer,id){
     connector.sprite.absolute.x=t_Cm.sprite.attrs.x+connector.sprite.attrs.x;
     connector.sprite.absolute.y=t_Cm.sprite.attrs.y+connector.sprite.attrs.y;
   });
-  this.select=function(e){
-    this.selected=true;
-    this.handle('onselect',e);
-    cColor=sColor;
-    // dragBody.change({fill:cColor});;
+  this.on('select',function(){
+    console.log("select");
+    cColor=hColor;
     dragBody.change({fill:cColor});
-  }
-
-  this.deselect=function(e){
-    this.selected=false;
-    this.handle('ondeselect',e);
+  });
+  this.on('deselect',function(){
     cColor=color;
-    // dragBody.change({fill:cColor});;
     dragBody.change({fill:cColor});
-  }
+  });
   //pendant: n not necessary here anymore
   this.patchTo=function(who,n){
     console.log(t_Cm.id+"plug to ",who);

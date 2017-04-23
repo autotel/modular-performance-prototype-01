@@ -94,7 +94,7 @@ mouse=(function(){
     }
     return false;
   }
-  this.Clickable=function(){
+  this.Clickable=function(detectorSprite){
     var t_ck=this;
     cklist.push(this);
 
@@ -109,6 +109,7 @@ mouse=(function(){
     onHandlers.call(this);
     this.hover=false;
     this.clicked=false;
+    this.selected=false;
     this.overrideHover=function(){
       return false;
     }
@@ -126,12 +127,19 @@ mouse=(function(){
       this.clickedPosition=e.pos;
       var taken=false;
       if(t_ck.hover){
-        // console.log("click");
-        // console.log("hoverclick");
         t_ck.handle("mousedown",e);
         t_ck.clicked=true;
+        if(!t_ck.selected){
+          t_ck.selected=true;
+          t_ck.handle('select',e);
+        }
         taken=true;
         // console.log("meClicked");
+      }else{
+        if(t_ck.selected){
+          t_ck.selected=false;
+          t_ck.handle('deselect',e);
+        }
       }
       return taken;
     }
@@ -155,9 +163,9 @@ mouse=(function(){
       }
     }
   }
-  this.Draggable =function(){
+  this.Draggable =function(detectorSprite){
     dlist.push(this);
-    t_M.Clickable.call(this);
+    t_M.Clickable.call(this,detectorSprite);
     var t_ck=this;
 
     this.onDrag=function(e){
