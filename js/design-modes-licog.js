@@ -1,10 +1,7 @@
 (function(){
   var tCoreMan=this;
-
-
   this.licog=function(owner){
     var tCore=this;
-    
     var pMap=[
       [0,0],
       [1,32],
@@ -26,10 +23,11 @@
     tCoreMan.Blank.call(this,owner);
     var incomingQueue=[];
     var outgoingQueue=[];
+    var currentStep=0;
     var stateSet={
       globalClock:true,
       roundRobin:false,
-      jump:false
+      jump:true
     }
     function inCom(){
       var headerReactionMap={
@@ -50,11 +48,11 @@
         }
       };
       function pStep(){
-        currentStep%=patLen;
-        var st=gridButtons[currentStep].getData();
+        // currentStep%=patLen;
+        var st="P0";
         // console.log(">>"+st);
         if(st!==false) outgoingQueue.push(st);
-        var ev=gridButtons[currentStep].evt();
+        // var ev=gridButtons[currentStep].evt();
       }
       if/* we are responding to signals erratically*/(stateSet.jump){
         for(var message of incomingQueue){
@@ -99,6 +97,14 @@
         owner.sendToAllCh(what);
       }
     }
+    keyboard.on('keydown',function(e){
+      // console.log(e);
+      if(owner.selected)
+      if(e.keyCode===32){
+        incomingQueue.push(0);
+        console.log(":)");
+      }
+    });
   }
   return this;
 }).call(ModeCores);

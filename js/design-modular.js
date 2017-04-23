@@ -375,11 +375,13 @@ CodeModule=function(layer,id){
     if(who)
     who.receive(what,t_Cm);
   }
+
   this.sendToAllCh=function(what){
     if(t_Cm.hover){
       console.log("["+t_Cm.id+"]>>"+what);
     }
     connector.highlight();
+    if(connector.children)
     for(var who of connector.children){
       if(who.child)
       who.child.receive(what,t_Cm);
