@@ -100,7 +100,7 @@ mouse=(function(){
 
     var pRem=this.remove;
     this.remove=function(){
-      // if(typeof pRem === "function") pRem();
+      if(typeof pRem === "function") pRem();
       cklist.splice(cklist.indexOf(this),1);
       if(dlist.indexOf(this))
         dlist.splice(cklist.indexOf(this),1);
@@ -113,6 +113,20 @@ mouse=(function(){
     this.overrideHover=function(){
       return false;
     }
+
+    //this part is tailored for Konva, we use the detector sprites konva callbacks
+    //to call the clickable callbacks. concentrating this operation here makes
+    //more easy to change renderer, and also easier to make objects clickable
+    detectorSprite.on('mouseover', function(e) {
+      t_ck.handle('mouseenter',e);
+    });
+    detectorSprite.on('mouseout', function(e) {
+      t_ck.handle('mouseout',e);
+    });
+
+    //obviously can be overriden. also konva specific
+    this.position=function(v){detectorSprite.position(v)};
+
     this.on('mouseenter',function(){
       // console.log("mouseenter",this);
       if(!t_ck.overrideHover())

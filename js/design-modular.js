@@ -39,16 +39,15 @@ ConnectorGraph=function(layer,from,to){
     this[a]=drawer.create(what,graphs[a]);
   }
   this.remove=function(){
-    for(var a in graphs){
-      this[a].destroy();
-      // this.delete();
-    }
+    sprite.destroyChildren();
+    sprite.destroy();
   }
 
   var sprite=this.sprite;
   var line=this.line;
   var indicator=this.indicator;
   var mouseBending=false;
+  mouse.Draggable.call(this,indicator);
 
   layer.add(sprite);
 
@@ -77,16 +76,13 @@ ConnectorGraph=function(layer,from,to){
 
 
 
-  indicator.on('mouseover', function(e) {
-    console.log("a");
-    indicator.hover=true;
+  this.on('mouseenter', function(e) {
     indicator.change({fill:hColor});
   });
-  indicator.on('mouseout', function(e) {
-    indicator.hover=false;
+  this.on('mouseout', function(e) {
     indicator.change({fill:cColor});
   });
-  indicator.on('mousedown',function(e){
+  this.on('mousedown',function(e){
     mouseBending=true;
   });
   mouse.on('mouseup',function(e){
@@ -105,17 +101,12 @@ ConnectorGraph=function(layer,from,to){
     }
     mouseBending=false;
   });
-
-  mouse.Draggable.call(indicator);
-  //pendant: the way that clickables are build, make essential that the mouse
-  //hover detection goes first, then the apply of mouse and then the event
-  //handlers that come from the construct. This is very cumbersome
-  indicator.on('select',function(){
+  this.on('select',function(){
     console.log("select");
     cColor=hColor;
     indicator.change({fill:cColor});
   });
-  indicator.on('deselect',function(){
+  this.on('deselect',function(){
     cColor=color;
     indicator.change({fill:cColor});
   });
@@ -176,17 +167,17 @@ ConnectorModule=function(parent,parentIndex,x,y){
   var group=this.group;
   var line=this.line;
   var circle=this.circle;
+  mouse.Draggable.call(this,group);
 
-  group.on('mouseover', function(e) {
-    console.log("a");
-    t_Cnm.hover=true;
+  this.on('mouseenter', function(e) {
     circle.change({fill:hColor});;
   });
-  group.on('mouseout', function(e) {
-    // console.log("a");
-    t_Cnm.hover=false;
+  this.on('mouseout', function(e) {
     circle.change({fill:cColor});;
   });
+
+
+
   mouse.on('mousedown',function(e){
     if(t_Cnm.hover)
       t_Cnm.isClicked=true;
@@ -253,7 +244,6 @@ ConnectorModule=function(parent,parentIndex,x,y){
 CodeModule=function(layer,id){
   this.type="cModule";
   ModuleBase.call(this);
-  mouse.Draggable.call(this);
   var t_Cm=this;
   var color="#cccccc";
   var cColor=color;
@@ -309,6 +299,8 @@ CodeModule=function(layer,id){
   var sprite=this.group;
   var connectors=[];
 
+  mouse.Draggable.call(this,dragBody);
+
   var HOR=false;
   this.overrideHover=function(){
     return HOR;
@@ -339,21 +331,7 @@ CodeModule=function(layer,id){
   //perhaps this one is the best method... but anyways I think that a object to
   //become clickable should only call one function, passing to thtat function
   //the sprite that detects the mouse
-  dragBody.on('mouseover', function(e) {
-    // t_Cm.handle('mouseover',e);
-    console.log("enmt");
-    // dragBody.change({fill:hColor});;
-    dragBody.change({fill:hColor});
-    // dragBody.fillAlpha=0.3;
-    // dragBody.x++;
-    t_Cm.handle('mouseenter',e);
-  });
-  dragBody.on('mouseout', function(e) {
-    // t_Cm.handle('mouseout',e);
-    // dragBody.change({fill:cColor});;
-    t_Cm.handle('mouseout',e);
-    dragBody.change({fill:cColor});
-  });
+
   this.on('dragging',function(e){
     connector.sprite.absolute={};
     connector.sprite.absolute.x=t_Cm.sprite.attrs.x+connector.sprite.attrs.x;
@@ -364,6 +342,13 @@ CodeModule=function(layer,id){
     cColor=hColor;
     dragBody.change({fill:cColor});
   });
+  this.on('mouseenter',function(){
+    dragBody.change({fill:hColor});
+  });
+  this.on('mouseout',function(){
+    dragBody.change({fill:cColor});
+  });
+
   this.on('deselect',function(){
     cColor=color;
     dragBody.change({fill:cColor});
