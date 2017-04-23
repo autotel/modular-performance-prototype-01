@@ -2,7 +2,7 @@
   var tCoreMan=this;
 
   var names={};
-  var newName=function(p){
+  var utils.newName=function(p){
     if(names.hasOwnProperty(p)){
       names[p]++;
     }else{
@@ -15,7 +15,7 @@
   this.dataButton=function(props){
     var myId=dataButtons.length;
     dataButtons[myId]=this;
-    var name=newName("databutton");
+    var name=utils.newName("databutton");
     var charScript="";
     var hColor=props.hColor||"#ffffff";
     var nColor=props.nColor||"#cccccc";

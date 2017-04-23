@@ -1,15 +1,7 @@
 (function(){
   var tCoreMan=this;
 
-  var names={};
-  var newName=function(p){
-    if(names.hasOwnProperty(p)){
-      names[p]++;
-    }else{
-      names[p]=0;
-    }
-    return p+names[p];
-  }
+
   this.licog=function(owner){
     var tCore=this;
     var pMap=[

@@ -41,7 +41,7 @@ var drawer=(function(){
   }
   var create={
     text:function(props){
-      console.log("dr text",props);
+      // console.log("dr text",props);
       var ret = new Konva.Text(props);
       if(props.appendTo) props.appendTo.add(ret);
       return ret;

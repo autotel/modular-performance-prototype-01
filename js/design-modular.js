@@ -1,31 +1,117 @@
 
 ConnectorGraph=function(layer,from,to){
-  console.log("nlin3");
-  // console.log({x:from.sprite.x,y:from.sprite.y},{x:to.sprite.x,y:to.sprite.y});
-  var sprite=drawer.create('dynamicLine',{
-    points: [{x:from.sprite.attrs.x,y:from.sprite.attrs.y},{x:to.sprite.attrs.x,y:to.sprite.attrs.y}],
-    strokeWidth: 2,
-    stroke:"black"
-  });
+  t_Cg=this;
+  console.log("line");
+  this.hover=false;
+  this.dragging=false;
+  var color="#ffffff";
+  var cColor=color;
+  var hColor="#000000";
+  var sColor="#ffcccc";
+
+  function getPoints(){
+    return [{x:from.sprite.absolute.x,y:from.sprite.absolute.y},{x:to.sprite.attrs.x,y:to.sprite.attrs.y}];
+  }
+  var tPoints=getPoints();
+  var graphs={
+    sprite:{what:"group"},
+    line:{
+      what:"dynamicLine",
+      points: tPoints,
+      strokeWidth: 2,
+      stroke:"black"
+    },
+    indicator:{
+      what:'dynamicCircle',
+      x: utils.lerp(tPoints[0].x,tPoints[1].x,0.6),
+      y: utils.lerp(tPoints[0].y,tPoints[1].y,0.6),
+      radius: 7,
+      fill: "#ffffff",
+      strokeWidth: 1,
+      interactive:true,
+      stroke:"black"
+    }
+  }
+  for(var a in graphs){
+    if(a!="sprite") graphs[a].appendTo=this.sprite;
+    var what=a;
+    if(graphs[a].hasOwnProperty("what")) what=graphs[a].what;
+    this[a]=drawer.create(what,graphs[a]);
+  }
+  this.remove=function(){
+    for(var a in graphs){
+      this[a].destroy();
+      // this.delete();
+    }
+  }
+
+  var sprite=this.sprite;
+  var line=this.line;
+  var indicator=this.indicator;
+  var mouseBending=false;
+
   layer.add(sprite);
+
   this.update=function(e){
-    // sprite.setPoints({x:from.sprite.x,y:from.sprite.y},{x:to.sprite.x,y:to.sprite.y});
-    sprite.change({
-      points: [{x:from.sprite.absolute.x,y:from.sprite.absolute.y},{x:to.sprite.attrs.x,y:to.sprite.attrs.y}]
+    tPoints=getPoints();
+    if(mouseBending){
+      tPoints=[tPoints[0],mouse.pos,tPoints[1]];
+      // console.log(tPoints);/
+    }else{
+      indicator.position({
+        x: utils.lerp(tPoints[0].x,tPoints[1].x,0.6),
+        y: utils.lerp(tPoints[0].y,tPoints[1].y,0.6),
+      });
+    }
+    line.change({
+      points: tPoints
     });
   }
+
   this.highlight=function(){
     this.setStroke('red');
     setTimeout(function(){
       this.setStroke('black');
     },200);
   }
+
+  indicator.on('mouseover', function(e) {
+    console.log("a");
+    indicator.hover=true;
+    indicator.change({fill:hColor});
+  });
+  indicator.on('mouseout', function(e) {
+    indicator.hover=false;
+    indicator.change({fill:cColor});
+  });
+  indicator.on('mousedown',function(e){
+    mouseBending=true;
+  });
+  mouse.on('mouseup',function(e){
+    if(mouseBending){
+      var underMouse=e.underMouse[0];
+      // console.log("up",e);
+      if(e.underMouse.length>0){
+        if(underMouse.type=="cModule"){
+          createConnection(from.parent,null,null,underMouse);
+          createConnection(underMouse,null,null,to);
+          from.parent.unpatch(to);
+        }else{
+          console.log(e.underMouse);
+        }
+      }
+    }
+    mouseBending=false;
+  });
+
+  mouse.Draggable.call(indicator);
+
   master.on('update',this.update);
 
 }
+//pendant: n nor a are needed here. Connecting model needs to be detangled and simplified a lot
 createConnection=function(parent,n,a,b){
   if(parent.patchTo(b,n)){
-    // new ConnectorGraph(connectorsLayer,a,b);
     console.log("connected");
   }else{
     console.log("no copnnection made");
@@ -36,8 +122,9 @@ removeConnection=function(connector){
 }
 //pendant:connector module should be part of the mode... maybe
 ConnectorModule=function(parent,parentIndex,x,y){
-  this.child=false;
+  this.children=false;
   this.hover=false;
+  this.parent=parent;
   this.dragging=false;
   var color="#ffffff";
   var cColor=color;
@@ -127,14 +214,19 @@ ConnectorModule=function(parent,parentIndex,x,y){
   }
   this.plug=function(who){
     if(who){
-      t_Cnm.child=who;
-      t_Cnm.connectorGraph=new ConnectorGraph(connectorsLayer,t_Cnm,who);
+      if(!this.children) this.children=[];
+      t_Cnm.children.push({child:who,connectorGraph:new ConnectorGraph(connectorsLayer,t_Cnm,who)});
     }
   }
-  this.unPlug=function(){
-    if(t_Cnm.child){
-      t_Cnm.child=false;
-      t_Cnm.connectorGraph.remove();
+  this.unplug=function(who){
+    for(var a in t_Cnm.children){
+      if(t_Cnm.children[a].child===who){
+        t_Cnm.children[a].connectorGraph.remove();
+        t_Cnm.children.splice(a,1);
+        if(t_Cnm.children.length==0){
+          t_Cnm.children=false;
+        }
+      }
     }
   }
   this.highlight=function(){
@@ -166,7 +258,7 @@ CodeModule=function(layer,id){
   var circle=new ConnectorModule(t_Cm,a,0,0);
   group.add(circle.sprite);
 
-  connectors[0]=circle;
+  var connector=circle;
 
   var props={
     dragBody:{
@@ -227,6 +319,7 @@ CodeModule=function(layer,id){
     group.move({x:v.x,y:v.y});
   }
   dragBody.on('mouseover', function(e) {
+    // t_Cm.handle('mouseover',e);
     console.log("enmt");
     // dragBody.change({fill:hColor});;
     dragBody.change({fill:hColor});
@@ -235,16 +328,15 @@ CodeModule=function(layer,id){
     t_Cm.handle('mouseenter',e);
   });
   dragBody.on('mouseout', function(e) {
+    // t_Cm.handle('mouseout',e);
     // dragBody.change({fill:cColor});;
     t_Cm.handle('mouseout',e);
     dragBody.change({fill:cColor});
   });
   this.on('dragging',function(e){
-    for(var conn of connectors){
-      conn.sprite.absolute={};
-      conn.sprite.absolute.x=t_Cm.sprite.attrs.x+conn.sprite.attrs.x;
-      conn.sprite.absolute.y=t_Cm.sprite.attrs.y+conn.sprite.attrs.y;
-    }
+    connector.sprite.absolute={};
+    connector.sprite.absolute.x=t_Cm.sprite.attrs.x+connector.sprite.attrs.x;
+    connector.sprite.absolute.y=t_Cm.sprite.attrs.y+connector.sprite.attrs.y;
   });
   this.select=function(e){
     this.selected=true;
@@ -261,32 +353,25 @@ CodeModule=function(layer,id){
     // dragBody.change({fill:cColor});;
     dragBody.change({fill:cColor});
   }
-
+  //pendant: n not necessary here anymore
   this.patchTo=function(who,n){
+    console.log(t_Cm.id+"plug to ",who);
     if(who===t_Cm){
       return false;
     }else{
-      console.log(n);
-      connectors[n].plug(who);
+      connector.plug(who);
       return true;
     }
   }
   this.unpatch=function(who){
-    for(var a in connectors){
-      if(connectors[a].child===who){
-        connectors[a].unplug();
-        return true;
-      }
-    }
-    return false;
-    // t_Cm.children.splice(t_Cm.children.indexOf(who),1);
+    return connector.unplug(who);
   }
   this.sendToCh=function(which,what){
     if(t_Cm.hover){
       console.log("["+t_Cm.id+"]>>"+what);
     }
-    var who=connectors[which].child;
-    connectors[which].highlight();
+    var who=connector.children[which].child;
+    connector.highlight();
     if(who)
     who.receive(what,t_Cm);
   }
@@ -294,8 +379,8 @@ CodeModule=function(layer,id){
     if(t_Cm.hover){
       console.log("["+t_Cm.id+"]>>"+what);
     }
-    for(var who of connectors){
-      who.highlight();
+    connector.highlight();
+    for(var who of connector.children){
       if(who.child)
       who.child.receive(what,t_Cm);
     }

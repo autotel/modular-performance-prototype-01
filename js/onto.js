@@ -39,17 +39,21 @@ mouse=(function(){
   });
   document.addEventListener("mouseup", function(e){
     buttonsDown[e.buttons]=false;
-    t_M.handle('mouseup',e);
+    e.underMouse=[];
     var chainReturn=false;
+    //pendant cheinreturn shoudl exit the loop
     eachClickable(function(){
-      // console.log("mousedown",this);
-      // console.log(chainReturn);
-      if(!chainReturn)
-        chainReturn= this.onRelease(e);
-        // console.log(chainReturn);
+      var thisUnder=this.onRelease(e);
+      if(thisUnder)
+        e.underMouse.push(this);
+      if(!chainReturn){
+        chainReturn= thisUnder;
+      }
     });
+    t_M.handle('mouseup',e);
   });
   document.addEventListener("mousemove",function(e){
+    t_M.pos={x:e.offsetX,y:e.offsetY};
     t_M.handle('mousemove',e);
     for(var a in buttonsDown){
       if(a){
@@ -93,8 +97,13 @@ mouse=(function(){
   this.Clickable=function(){
     var t_ck=this;
     cklist.push(this);
+
+    var pRem=this.remove;
     this.remove=function(){
-      list.splice(list.indexOf(this),1);
+      // if(typeof pRem === "function") pRem();
+      cklist.splice(cklist.indexOf(this),1);
+      if(dlist.indexOf(this))
+        dlist.splice(cklist.indexOf(this),1);
     }
     if(!this.handle)
     onHandlers.call(this);
@@ -104,12 +113,12 @@ mouse=(function(){
       return false;
     }
     this.on('mouseenter',function(){
-      // console.log("mouseenter");
+      // console.log("mouseenter",this);
       if(!t_ck.overrideHover())
       t_ck.hover=true;
     });
     this.on('mouseout',function(){
-      // console.log("mosueout");
+      // console.log("mosueout",this);
       if(!t_ck.overrideHover())
       t_ck.hover=false;
     });
@@ -132,8 +141,8 @@ mouse=(function(){
         t_ck.handle("release",e);
         t_ck.clicked=false;
         taken=true;
-      }else{
-
+      }else if(t_ck.hover){
+        taken="onlyRelease";
       }
       return taken;
     }
