@@ -163,13 +163,21 @@ mouse=(function(){
   }
   return this;
 })();
+var keyboard=(function(){
+  var thk=this;
+  addEventListener("keydown", function(event){
+    // console.log(event);
+    thk.handle("keydown",event);
+  });
+  return this;
+})();
 ModuleBase=function(){
   if(!this.handle)
   onHandlers.call(this);
   // console.log("new module");
   var t_M=this;
-  this.draw=function(vars){
-    this.handle('draw',vars);
+  this.update=function(vars){
+    this.handle('update',vars);
   }
   this.codeString="";
   this.codeActive={};
