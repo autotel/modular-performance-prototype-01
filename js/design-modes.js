@@ -20,7 +20,11 @@ ModeCores=(function(){
 
 
   this.squareButton=function(props){
+    var nColor="gray";
+    var hColor="white";
+    var aColor="black";
     var cColor=nColor;
+    props.fill=cColor;
     var tSq=this;
 
     var rect=drawer.create('dynamicRect',props);

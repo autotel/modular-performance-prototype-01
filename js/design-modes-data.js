@@ -101,17 +101,19 @@
         return false;
       }
     };
-    this.evt=function(){
-      if(charScript.length<1) return false;
-      if(charScript[0]=="-"||charScript[0]==" ") return false;
-      return parseInt(charScript[0]/*+charScript[1]*/, 16);
+    this.getEvt=function(){
+      if(charScript.length>=2){
+        return charScript[2]+""+(charScript[3]|" ");
+      }else{
+        return false;
+      }
     }
   }
 
 
   this.dataMatrix=function(owner){
     var tCore=this;
-
+    
     var interfaceModes={
       editSequence:{},//normal step sequencing
       editEvents:{},//select what the sequencer events 0-16 make
@@ -204,6 +206,7 @@
 
     function inCom(){
       var headerReactionMap={
+        '':function(){},
         '+':function(message){
           currentStep+=parseInt(message[1],16);
         },'-':function(message){
@@ -217,23 +220,27 @@
         },'=':function(message){
           currentStep=parseInt(message[1],16);
         },'P':function(message){
+          console.log("pla");
           synth.play(pMap[message[1]][0],pMap[message[1]][1]);
         }
       };
       function pStep(){
+        if(isNaN(currentStep)) currentStep=0;
         currentStep%=patLen;
+
         var st=gridButtons[currentStep].getData();
-        // console.log(">>"+st);
         if(st!==false) outgoingQueue.push(st);
-        var ev=gridButtons[currentStep].evt();
+        var ev=gridButtons[currentStep].getEvt();
+        headerReactionMap[ev](ev);
+
       }
       if/* we are responding to signals erratically*/(stateSet.jump.getActive()){
         for(var message of incomingQueue){
           if(message.length>0)
             headerReactionMap[message[0]](message);
-          if(isNaN(currentStep)) currentStep=0;
-          // currentStep=message;
           pStep();
+
+
         }
       }else/* we are responding to signals linearly*/{
         for(var message of incomingQueue){
