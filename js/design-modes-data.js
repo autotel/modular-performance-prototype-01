@@ -1,21 +1,12 @@
 (function(){
   var tCoreMan=this;
 
-  var names={};
-  var newName=function(p){
-    if(names.hasOwnProperty(p)){
-      names[p]++;
-    }else{
-      names[p]=0;
-    }
-    return p+names[p];
-  }
   //for awareness of a "next" databutton
   var dataButtons=[];
   this.dataButton=function(props){
     var myId=dataButtons.length;
     dataButtons[myId]=this;
-    var name=newName("databutton");
+    var name=utils.newName("databutton");
     var charScript="";
     var hColor=props.hColor||"#ffffff";
     var nColor=props.nColor||"#cccccc";
@@ -38,14 +29,12 @@
     var text=this.text;
     this.sprite=group;
 
-    mouse.Clickable.call(this);
-    group.on('mouseover', function(e) {
-      rect.change({fill:hColor});;
-      tSq.handle('mouseenter');
+    mouse.Clickable.call(this,group);
+    group.on('mouseenter', function(e) {
+      rect.change({fill:hColor});
     });
     group.on('mouseout', function(e) {
-      rect.change({fill:cColor});;
-      tSq.handle('mouseout');
+      rect.change({fill:cColor});
     });
 
     group.on('click',function(){

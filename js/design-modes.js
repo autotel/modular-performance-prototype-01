@@ -31,16 +31,14 @@ ModeCores=(function(){
     // var rect=this.rect;
     var active=false;
 //    var rect=new Konva.Rect(props);
-    mouse.Clickable.call(this);
-    rect.on('mouseover', function(e) {
-      rect.change({fill:hColor});;
-      tSq.handle('mouseenter');
+    mouse.Clickable.call(this,rect);
+    this.on('mouseenter', function(e) {
+      rect.change({fill:hColor});
     });
-    rect.on('mouseout', function(e) {
-      rect.change({fill:cColor});;
-      tSq.handle('mouseout');
+    this.on('mouseout', function(e) {
+      rect.change({fill:cColor});
     });
-    rect.on('click',function(){
+    this.on('click',function(){
       active=!active;
       cColor=(active ? aColor : nColor);
       rect.change({fill:cColor});;
