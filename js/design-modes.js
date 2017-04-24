@@ -20,9 +20,6 @@ ModeCores=(function(){
 
 
   this.squareButton=function(props){
-    var hColor=props.hColor||"#ffffff";
-    var nColor=props.nColor||"#cccccc";
-    var aColor=props.aColor||"#00cc00";
     var cColor=nColor;
     var tSq=this;
 
@@ -38,7 +35,7 @@ ModeCores=(function(){
     this.on('mouseout', function(e) {
       rect.change({fill:cColor});
     });
-    this.on('click',function(){
+    this.on('mousedown',function(){
       active=!active;
       cColor=(active ? aColor : nColor);
       rect.change({fill:cColor});;
@@ -193,24 +190,6 @@ ModeCores=(function(){
         outGo();
       }
     };
-    //
-    // this.onClock=function(){
-    //   if(stateSet.globalClock.getActive()){
-    //     sendQueue();
-    //   }
-    // };
-    // this.onAfterClock=function(){
-    //   if(stateSet.selfTrigger.getActive()){
-    //     incomingQueue.push(0);
-    //   }
-    //   if(!stateSet.globalClock.getActive()){
-    //     outGo();
-    //   }
-    //   // if(!stateSet.globalClock.getActive()){
-    //     inCom();
-    //   // }
-    //   // sendQueue();
-    // };
     this.onSignal=function(e){
       // lastMessage=e.message;
       incomingQueue.push(e.message);
