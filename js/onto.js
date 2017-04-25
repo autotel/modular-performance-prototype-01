@@ -97,7 +97,6 @@ mouse=(function(){
   this.Clickable=function(detectorSprite){
     var t_ck=this;
     cklist.push(this);
-
     var pRem=this.remove;
     this.remove=function(){
       if(typeof pRem === "function") pRem();

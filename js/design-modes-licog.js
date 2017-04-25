@@ -24,88 +24,63 @@
       [["P0","A=0"]],
       [["P0","0=0"],["P0","1=0"]]
     ];
+    var myType=0;
+    var types=[
+      "♪",
+      "&",
+      "M",
+      "◌"
+    ];
     this.sprite=drawer.create('group',{});
+    this.text=drawer.create('dynamicText',{appendTo:this.sprite,text:types[myType],fill:"red"});
+    var text=this.text;
     tCoreMan.Blank.call(this,owner);
     var incomingQueue=[];
     var outgoingQueue=[];
+    var nextClockQueue=[];
     var currentStep=0;
-    var stateSet={
-      globalClock:true,
-      roundRobin:false,
-      jump:true
+
+    function changeType(newType){
+      myType=Math.abs(newType);
+      myType%=types.length;
+      console.log(myType);
+      text.change({text:types[myType]});
     }
-    function inCom(){
-      var headerReactionMap={
-        '+':function(message){
-          currentStep+=parseInt(message[1],16);
-        },'-':function(message){
-          currentStep-=parseInt(message[1],16);
-        },'*':function(message){
-          currentStep*=parseInt(message[1],16);
-        },'/':function(message){
-          currentStep/=parseInt(message[1],16);
-        },'%':function(message){
-          currentStep%=parseInt(message[1],16);
-        },'=':function(message){
-          currentStep=parseInt(message[1],16);
-        },'P':function(message){
-          synth.play(pMap[message[1]][0],pMap[message[1]][1]);
-        }
-      };
-      function pStep(){
-        //preset[presetnumber][stepnumber][self or send]
-
-        var send=presets[0][currentStep][1];
-        if(send!==false) outgoingQueue.push(send);
-      }
-      if/* we are responding to signals erratically*/(stateSet.jump){
-        for(var message of incomingQueue){
-          if(message.length>0)
-            headerReactionMap[message[0]](message);
-          if(isNaN(currentStep)) currentStep=0;
-          //
-          //pendant: what shoudl happen here?
-          //the following thwo actions could be in or out of the messages iterator,
-          pStep();
-          //each step serves as a sort of user programmable interface
-          var stepAction=presets[0][currentStep][0];
-          headerReactionMap[stepAction[0]](stepAction);
-        }
-
-      }else/* we are responding to signals linearly*/{
-        for(var message of incomingQueue){
-          currentStep++;
-          pStep();
-        }
-      }
-      incomingQueue=[];
+    this.play=function(a){
+      console.log(a,"=",pMap[a]);
+      synth.play(pMap[a][0],pMap[a][1]);
     }
-
-    function outGo(){
-      for(var a of outgoingQueue)
-        tCore.send(a);
-      outgoingQueue=[];
-    }
-
     this.onClock=function(){
-      if(stateSet.globalClock){
-        outGo();
-        inCom();
+      for(var a in nextClockQueue){
+        console.log(nextClockQueue[a]);
+        if(typeof tCore[nextClockQueue[a][0]] === 'function'){
+          tCore[nextClockQueue[a][0]](nextClockQueue[a][1]);
+        }else{
+          console.log("couldnt run "+a[0]);
+        }
       }
+      nextClockQueue=[];
     };
     this.onSignal=function(e){
-      incomingQueue.push(e.message);
-      if(!stateSet.globalClock){
-        inCom();
-        outGo();
+      if(myType==0){
+        tCore.play(1);
+        nextClockQueue.push(["send","A10"]);
+      }else if(myType==1){
+        console.log("send message to all children");
+      }else if(myType==2){
+        console.log("send message to children number",e.message);
+      }else if(myType==3){
+        console.log("send message to incremental children; there should be a reset action somehow");
       }
     };
     this.send=function(what){
       var whom=what[0];
       what=""+what[1]+what[2];
       if(whom==="A"){
+        console.log("send to ",whom);
         owner.sendToAllCh(what);
       }else{
+        console.log("send to ",whom);
         owner.sendToCh(parseInt(whom),what);
       }
     }
@@ -113,8 +88,11 @@
       // console.log(e);
       if(owner.selected)
       if(e.keyCode===32){
-        incomingQueue.push(0);
-        console.log(":)");
+        tCore.onSignal({message:0});
+      }else if(e.keyCode===38){
+        changeType(myType+1);
+      }else if(e.keyCode===40){
+        changeType(myType-1);
       }
     });
   }
