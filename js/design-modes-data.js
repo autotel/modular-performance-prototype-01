@@ -102,9 +102,10 @@
       }
     };
     this.getEvt=function(){
-      if(charScript.length>=2){
+      if(charScript.length>=4){
         return charScript[2]+""+(charScript[3]|" ");
       }else{
+        console.log("len:"+charScript.length+"char:",charScript);
         return false;
       }
     }
@@ -113,7 +114,7 @@
 
   this.dataMatrix=function(owner){
     var tCore=this;
-    
+
     var interfaceModes={
       editSequence:{},//normal step sequencing
       editEvents:{},//select what the sequencer events 0-16 make
@@ -230,8 +231,6 @@
 
         var st=gridButtons[currentStep].getData();
         if(st!==false) outgoingQueue.push(st);
-        var ev=gridButtons[currentStep].getEvt();
-        headerReactionMap[ev](ev);
 
       }
       if/* we are responding to signals erratically*/(stateSet.jump.getActive()){
@@ -239,9 +238,11 @@
           if(message.length>0)
             headerReactionMap[message[0]](message);
           pStep();
-
-
         }
+
+        var ev=gridButtons[currentStep].getEvt();
+        if(typeof headerReactionMap[ev[0]] === 'function'){  headerReactionMap[ev[0]](ev); currentStep%=patLen; }else{console.log(ev[0]+" not a function");}
+
       }else/* we are responding to signals linearly*/{
         for(var message of incomingQueue){
           currentStep++;
