@@ -22,7 +22,12 @@ mouse=(function(){
   this.dragging=false;
   this.buttonsDown={};
   this.buttonsDragging={};
-
+  var onMouseWheel=function(e){
+    e.delta=Math.sign(e.wheelDelta);
+    t_M.handle('wheel',e);
+  }
+  document.addEventListener("DOMMouseScroll",function(e){e.wheelDelta=e.detail; onMouseWheel(e)});
+  document.addEventListener("mousewheel",onMouseWheel);
   document.addEventListener("mousedown", function(e){
     // console.log(e);
     lastClickpos={x:e.offsetX,y:e.offsetY};
@@ -31,8 +36,6 @@ mouse=(function(){
     t_M.handle('click',e);
     var chainReturn=false;
     eachClickable(function(){
-      // console.log("mousedown",this);
-      // console.log(chainReturn);
       if(!chainReturn)
         chainReturn= this.onClick(e);
     });
