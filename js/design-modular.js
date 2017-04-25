@@ -257,12 +257,12 @@ CodeModule=function(layer,id){
   this.group=drawer.create("group",{appendTo:layer,interactive:true});
   var group=this.group;
   this.sprite=group;
-
   //pendant: we are creating only one connector surface, thus should not be array anymore
   var circle=new ConnectorModule(t_Cm,a,0,0);
   group.add(circle.sprite);
 
   var connector=circle;
+  this.children=function(){return connector.children};
 
   var props={
     dragBody:{
@@ -399,6 +399,16 @@ CodeModule=function(layer,id){
     }
     t_Cm.modeCore.onSignal({message:what,from:this});
   }
+  //optional repulsion force?
+  //
+  // master.on('update',function(){
+    // for all other licogs{
+    //   if nearer than treshold
+    //     add repulsive force to my force away from a licog
+    // }
+    // move(force vector)
+  // });
+
   // this.position=function(a,b){
   //   t_Cm.sprite.position({x:a,y:b});
   // }

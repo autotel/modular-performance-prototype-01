@@ -34,6 +34,7 @@
     this.sprite=drawer.create('group',{});
     this.text=drawer.create('dynamicText',{appendTo:this.sprite,text:types[myType],fill:"red"});
     var text=this.text;
+    var sprite=this.sprite;
     tCoreMan.Blank.call(this,owner);
     var incomingQueue=[];
     var outgoingQueue=[];
@@ -61,16 +62,26 @@
       }
       nextClockQueue=[];
     };
+
     this.onSignal=function(e){
+      var msg=e.message;
+      console.log(msg);
+
       if(myType==0){
         tCore.play(1);
         nextClockQueue.push(["send","A10"]);
       }else if(myType==1){
-        console.log("send message to all children");
+        tCore.send("A"+msg);
       }else if(myType==2){
-        console.log("send message to children number",e.message);
+        currentStep=msg;
+        currentStep%=owner.children().length;
+        console.log("currentChildren: "+currentStep);
+        tCore.send(msg+"");
       }else if(myType==3){
-        console.log("send message to incremental children; there should be a reset action somehow");
+        currentStep++;
+        currentStep%=owner.children().length;
+        console.log("currentChildren: "+currentStep);
+        tCore.send(currentStep+""+msg);
       }
     };
     this.send=function(what){
@@ -95,6 +106,7 @@
         changeType(myType-1);
       }
     });
+    
   }
   return this;
 }).call(ModeCores);
