@@ -109,7 +109,6 @@ var drawer=(function(){
           }else if(a=='height'){
             ret.setHeight(newProps.height);
           }else if(a=='points'){
-
             var serializedPoints=[];
             for(var a in newProps.points){
               serializedPoints.push(newProps.points[a].x);
@@ -123,6 +122,8 @@ var drawer=(function(){
             ret.setFill(newProps.fill);
           }else if(a=='stroke'){
             ret.setStroke(newProps.color);
+          }else if(a=='text'){
+            ret.setText(newProps.text);
           }else{
             ret[a]=newProps[a];
           }
