@@ -43,12 +43,12 @@ window.onload=function(){
     modl=new CodeModule(layer,a);
     /*if(a==9){
       modl.mode(ModeCores.notePlayer);
-    }else if(a==8){
-      modl.mode(ModeCores.notePlayer);
-    }else*/{
+    }else */if(a<5){
+      modl.mode(ModeCores.flower);
+    }else{
       modl.mode(ModeCores.licog);
     }
-    modl.move({x:100,y:0});
+    modl.move({x:100,y:30*(10-a)});
     modules[a]=modl;
   }
 
