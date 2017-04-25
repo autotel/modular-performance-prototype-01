@@ -240,16 +240,18 @@
           pStep();
         }
 
+        incomingQueue=[];
+
         var ev=gridButtons[currentStep].getEvt();
-        if(typeof headerReactionMap[ev[0]] === 'function'){  headerReactionMap[ev[0]](ev); currentStep%=patLen; }else{console.log(ev[0]+" not a function");}
+        if(typeof headerReactionMap[ev[0]] === 'function')  incomingQueue.push(ev);
 
       }else/* we are responding to signals linearly*/{
         for(var message of incomingQueue){
           currentStep++;
           pStep();
         }
+        incomingQueue=[];
       }
-      incomingQueue=[];
     }
 
     function outGo(){

@@ -38,7 +38,7 @@ window.onload=function(){
   // rectangle.y = 170;
   // stage.add(rectangle);
 
-  for(var a=0; a<10; a++){
+  for(var a=0; a<5; a++){
     var modl;
     modl=new CodeModule(layer,a);
     /*if(a==9){
