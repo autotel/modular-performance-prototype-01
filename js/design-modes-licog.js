@@ -39,6 +39,7 @@
     var incomingQueue=[];
     var outgoingQueue=[];
     var nextClockQueue=[];
+    var nextAfterClockQueue=[];
     var currentStep=0;
 
     function changeType(newType){
@@ -52,21 +53,23 @@
       synth.play(pMap[a][0],pMap[a][1]);
     }
     this.onClock=function(){
-      for(var a in nextClockQueue){
-        console.log(nextClockQueue[a]);
-        if(typeof tCore[nextClockQueue[a][0]] === 'function'){
-          tCore[nextClockQueue[a][0]](nextClockQueue[a][1]);
+      nextAfterClockQueue=nextClockQueue;
+      nextClockQueue=[];
+    };
+    this.onAfterClock=function(){
+      for(var a in nextAfterClockQueue){
+        if(typeof tCore[nextAfterClockQueue[a][0]] === 'function'){
+          tCore[nextAfterClockQueue[a][0]](nextAfterClockQueue[a][1]);
         }else{
           console.log("couldnt run "+a[0]);
         }
       }
-      nextClockQueue=[];
+      nextAfterClockQueue=[];
     };
 
     this.onSignal=function(e){
       var msg=e.message;
       console.log(msg);
-
       if(myType==0){
         tCore.play(1);
         nextClockQueue.push(["send","A10"]);
@@ -84,6 +87,7 @@
         tCore.send(currentStep+""+msg);
       }
     };
+
     this.send=function(what){
       var whom=what[0];
       what=""+what[1]+what[2];
@@ -106,7 +110,7 @@
         changeType(myType-1);
       }
     });
-    
+
   }
   return this;
 }).call(ModeCores);
