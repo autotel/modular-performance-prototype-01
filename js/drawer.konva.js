@@ -23,8 +23,6 @@ var drawer=(function(){
       height = window.innerHeight;
       stage.setWidth(width);
       stage.setHeight(height);
-      canvas.setWidth(width);
-      canvas.setHeight(height);
     };
   }
   this.update=function(){
