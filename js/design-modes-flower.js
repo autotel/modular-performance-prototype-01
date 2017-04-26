@@ -6,7 +6,7 @@
   var tCoreMan=this;
 
   var types=[
-    "♪",
+    "Z",
     "&",
     "M",
     "◌"
@@ -30,7 +30,8 @@
   ];
   var RadialButton=function(owner,props){
     var cColor=nColor;
-    var sprite=drawer.create('dynamicCircle',{x:Math.cos(Math.PI*2*props.num/props.over)*40,y:Math.sin(Math.PI*2*props.num/props.over)*40,fill:cColor,radius:7});
+    var rad=30;
+    var sprite=drawer.create('dynamicCircle',{x:Math.cos(Math.PI*2*props.num/props.over)*rad,y:Math.sin(Math.PI*2*props.num/props.over)*rad,fill:cColor,radius:7});
     var playsNote=false;
     var note=36;
     var noteColor="#000000";
@@ -102,11 +103,12 @@
       gui.sequencerButtons[a]=new RadialButton(tCore,{num:a,over:len});
     }
     var sequencerButtons=gui.sequencerButtons;
-    gui.text=drawer.create('dynamicText',{appendTo:this.sprite,text:types[myType],fill:"red"});
+    gui.text=drawer.create('dynamicText',{appendTo:this.sprite,text:types[myType],fill:"red",listening:false});
     var text=gui.text;
+    text.setListening(false);
     var postConnector=owner.addConnectorModule();
-    postConnector.group.move({x:10,y:10});
-    postConnector.circle.setRadius(10);
+    postConnector.group.move({x:30,y:30});
+    postConnector.circle.setRadius(7);
 
 
     keyboard.on('keydown',function(e){
@@ -131,8 +133,12 @@
       // console.log(a,"=",pMap[a]);
       var num=a%sequencerButtons.length;
       // console.log(sequencerButtons[num],a,num);
-      synth.play(1,sequencerButtons[num].getEvent());
+      var ev=sequencerButtons[num].getEvent();
+      if(ev!==false){
+        synth.play(1,ev);
+      }
       sequencerButtons[num].playHighlight();
+
     }
     this.onClock=function(){
       nextAfterClockQueue=nextClockQueue;
@@ -152,10 +158,10 @@
     var triggerSubLicog=function(number,message){
       if(number=="A"){
         play(0);
+        console.log("should play all licogs");
       }else{
         play(number);
       }
-      console.log("should play all licogs");
       nextClockQueue.push(["subSend","A10"]);
     }
 
@@ -163,7 +169,7 @@
       var msg=e.message;
       // console.log(msg);
       if(myType==0){
-        play(1);
+
         nextClockQueue.push(["send","A10"]);
         nextClockQueue.push(["send","S"+msg]);
       }else if(myType==1){
