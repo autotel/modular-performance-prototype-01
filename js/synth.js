@@ -33,7 +33,7 @@ var synth=(function(){
   this.synth1=synth1;
   this.drumkit1=drumkit1;
   this.play=function(chan,note){
-    console.log(chan,note);
+    // console.log(chan,note);
     if(chan==0){
       drumkit1.play(0);
     }else if(chan==1){

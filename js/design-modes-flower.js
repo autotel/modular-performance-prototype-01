@@ -161,7 +161,7 @@
 
     this.onSignal=function(e){
       var msg=e.message;
-      console.log(msg);
+      // console.log(msg);
       if(myType==0){
         play(1);
         nextClockQueue.push(["send","A10"]);
@@ -199,7 +199,7 @@
     this.subSend=function(what){
       var whom=what[0];
       what=""+what[1]+what[2];
-      console.log("send to ",whom);
+      console.log("subsend to ",whom);
       if(whom==="A"){
         postConnector.sendToAllCh(what);
       }else if(whom==="S"){

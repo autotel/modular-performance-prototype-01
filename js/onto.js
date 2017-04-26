@@ -6,7 +6,9 @@ var master=(function(){
 metronome=(function(){
   onHandlers.call(this);
   var tMetro=this;
+  this.verbose=false;
   Tone.Transport.scheduleRepeat(function(time){
+    if(tMetro.verbose)
     console.log("ck");
     tMetro.handle('beat',time);
     tMetro.handle('afterbeat',time);
