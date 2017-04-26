@@ -72,6 +72,13 @@
     this.getEvent=function(){
       return playsNote?note:false;
     }
+    var tHighlight=function(){
+      sprite.change({fill:hColor});
+      setTimeout(function(){sprite.change({fill:cColor});},100);
+    }
+    this.playHighlight=function(){
+      tHighlight();
+    }
   }
   this.flower=function(owner){
     var tCore=this;
@@ -80,7 +87,7 @@
     var nextClockQueue=[];
     var nextAfterClockQueue=[];
     var currentStep=0;
-    var myType=0;
+    var myType=1;
     this.sprite=drawer.create('group',{});
     var sprite=this.sprite;
     tCoreMan.Blank.call(this,owner);
@@ -96,12 +103,23 @@
     }
     var sequencerButtons=gui.sequencerButtons;
     gui.text=drawer.create('dynamicText',{appendTo:this.sprite,text:types[myType],fill:"red"});
-    text=gui.text;
+    var text=gui.text;
     var postConnector=owner.addConnectorModule();
     postConnector.group.move({x:10,y:10});
     postConnector.circle.setRadius(10);
 
 
+    keyboard.on('keydown',function(e){
+      // console.log(e);
+      if(owner.selected)
+      if(e.keyCode===32){
+        tCore.onSignal({message:0});
+      }else if(e.keyCode===38){
+        changeType(myType+1);
+      }else if(e.keyCode===40){
+        changeType(myType-1);
+      }
+    });
 
     function changeType(newType){
       myType=Math.abs(newType);
@@ -109,9 +127,12 @@
       console.log(myType);
       text.change({text:types[myType]});
     }
-    this.play=function(a){
+    var play=function(a){
       // console.log(a,"=",pMap[a]);
-      synth.play(1,sequencerButtons[currentStep].getEvent());
+      var num=a%sequencerButtons.length;
+      // console.log(sequencerButtons[num],a,num);
+      synth.play(1,sequencerButtons[num].getEvent());
+      sequencerButtons[num].playHighlight();
     }
     this.onClock=function(){
       nextAfterClockQueue=nextClockQueue;
@@ -128,41 +149,53 @@
       nextAfterClockQueue=[];
     };
 
+    var triggerSubLicog=function(number,message){
+      if(number=="A"){
+        play(0);
+      }else{
+        play(number);
+      }
+      console.log("should play all licogs");
+      nextClockQueue.push(["subsend","A10"]);
+    }
+
     this.onSignal=function(e){
       var msg=e.message;
       console.log(msg);
       if(myType==0){
-        tCore.play(1);
+        play(1);
         nextClockQueue.push(["send","A10"]);
+        nextClockQueue.push(["send","S"+msg]);
       }else if(myType==1){
         tCore.send("A"+msg);
+        triggerSubLicog("A",msg);
       }else if(myType==2){
         currentStep=msg;
-        currentStep%=owner.children().length;
+        // currentStep%=owner.children().length;
         console.log("currentChildren: "+currentStep);
         tCore.send(msg+"");
+        triggerSubLicog(currentStep,msg);
       }else if(myType==3){
         currentStep++;
-        currentStep%=owner.children().length;
+        // currentStep%=owner.children().length;
         console.log("currentChildren: "+currentStep);
         tCore.send(currentStep+""+msg);
+        triggerSubLicog(currentStep,msg);
       }
     };
 
     this.send=function(what){
       var whom=what[0];
       what=""+what[1]+what[2];
+      console.log("send to ",whom);
       if(whom==="A"){
-        console.log("send to ",whom);
         owner.sendToAllCh(what);
+      }else if(whom==="S"){
+        owner.sendToSelf(what);
       }else{
-        console.log("send to ",whom);
         owner.sendToCh(parseInt(whom),what);
       }
     }
-    keyboard.on('keydown',function(e){
-
-    });
   }
 
 
