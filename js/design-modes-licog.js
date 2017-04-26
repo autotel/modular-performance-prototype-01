@@ -6,6 +6,20 @@
     "M",
     "◌"
   ];
+  var noteColors=[
+    "#FF0000",//0 c
+    "#00FFA2",//5 f
+    "#BB00FF",//A a#
+    "#BBFF00",//3 d#
+    "#0048FF",//8 g#
+    "#FF9900",//1 c#
+    "#00FFE1",//6 f#
+    "#FF00B7",//B b
+    "#44FF00",//4 e
+    "#8000FF",//9 a
+    "#FFD500",//2 d
+    "#00D0FF",//7 g
+  ];
   this.licog=function(owner){
     var tCore=this;
     var pMap=[
@@ -42,7 +56,33 @@
     var nextAfterClockQueue=[];
     var currentStep=0;
 
-    
+    var playsNote=false;
+    var note=36;
+    var noteColor="#000";
+
+    var updateNoteColor=function(){
+      noteColor=noteColors[note%12];
+    }
+    mouse.on('wheel',function(e){
+      var sprite=owner.dragBody;
+      if(owner.selected){
+        playsNote=true;
+        note-=e.delta;
+        console.log(note);
+        updateNoteColor();
+        sprite.change({fill:noteColor});
+      }
+    });
+
+    owner.on('mouseout',function(){
+      if(!owner.selected)
+        if(playsNote)
+        owner.dragBody.change({fill:noteColor});
+    });
+    owner.on('deselect',function(){
+      if(playsNote)
+        owner.dragBody.change({fill:noteColor});
+    });
 
     function changeType(newType){
       myType=Math.abs(newType);
@@ -73,6 +113,7 @@
       var msg=e.message;
       console.log(msg);
       if(myType==0){
+        if(playsNote)
         tCore.play(1);
         nextClockQueue.push(["send","A10"]);
       }else if(myType==1){

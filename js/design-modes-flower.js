@@ -15,18 +15,18 @@
 
 
   var noteColors=[
-    "#FF0000",
-    "#FF9900",
-    "#FFD500",
-    "#BBFF00",
-    "#44FF00",
-    "#00FFA2",
-    "#00FFE1",
-    "#00D0FF",
-    "#0048FF",
-    "#8000FF",
-    "#BB00FF",
-    "#FF00B7",
+    "#FF0000",//0 c
+    "#00FFA2",//5 f
+    "#BB00FF",//A a#
+    "#BBFF00",//3 d#
+    "#0048FF",//8 g#
+    "#FF9900",//1 c#
+    "#00FFE1",//6 f#
+    "#FF00B7",//B b
+    "#44FF00",//4 e
+    "#8000FF",//9 a
+    "#FFD500",//2 d
+    "#00D0FF",//7 g
   ];
   var RadialButton=function(owner,props){
     var cColor=nColor;
@@ -156,7 +156,7 @@
         play(number);
       }
       console.log("should play all licogs");
-      nextClockQueue.push(["subsend","A10"]);
+      nextClockQueue.push(["subSend","A10"]);
     }
 
     this.onSignal=function(e){
@@ -194,6 +194,18 @@
         owner.sendToSelf(what);
       }else{
         owner.sendToCh(parseInt(whom),what);
+      }
+    }
+    this.subSend=function(what){
+      var whom=what[0];
+      what=""+what[1]+what[2];
+      console.log("send to ",whom);
+      if(whom==="A"){
+        postConnector.sendToAllCh(what);
+      }else if(whom==="S"){
+        owner.sendToSelf(what);
+      }else{
+        postConnector.sendToCh(parseInt(whom),what);
       }
     }
   }
