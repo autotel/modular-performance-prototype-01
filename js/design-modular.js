@@ -38,6 +38,15 @@ ConnectorGraph=function(layer,from,to){
     if(graphs[a].hasOwnProperty("what")) what=graphs[a].what;
     this[a]=drawer.create(what,graphs[a]);
   }
+  keyboard.on('keydown',function(e){
+    if(t_Cg.selected) if(e.keyCode===46){
+      t_Cg.disconnect();
+    }
+  });
+  this.disconnect=function(){
+    console.log("unplug");
+    from.unplug(to);
+  }
   this.remove=function(){
     sprite.destroyChildren();
     sprite.destroy();
