@@ -91,8 +91,10 @@
       text.change({text:types[myType]});
     }
     this.play=function(a){
-      console.log(a,"=",pMap[a]);
-      synth.play(pMap[a][0],pMap[a][1]);
+      //pendant: should be according to PMAP so we can do scale modulation
+      // console.log(a,"=",pMap[a]);
+      // synth.play(pMap[a][0],pMap[a][1]);
+      synth.play(1,note);
     }
     this.onClock=function(){
       nextAfterClockQueue=nextClockQueue;
@@ -111,10 +113,10 @@
 
     this.onSignal=function(e){
       var msg=e.message;
-      console.log(msg);
+      // console.log(msg);
       if(myType==0){
         if(playsNote)
-        tCore.play(1);
+        tCore.play(note);
         nextClockQueue.push(["send","A10"]);
       }else if(myType==1){
         tCore.send("A"+msg);
