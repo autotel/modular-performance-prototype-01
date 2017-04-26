@@ -91,9 +91,9 @@ ConnectorGraph=function(layer,from,to){
       // console.log("up",e);
       if(e.underMouse.length>0){
         if(underMouse.type=="cModule"){
-          createConnection(from,underMouse);
+          createConnection(from,underMouse.parent);
           createConnection(underMouse,to);
-          from.parent.unpatch(to);
+          from.unpatch(to);
         }else{
           console.log(e.underMouse);
         }
@@ -116,21 +116,28 @@ ConnectorGraph=function(layer,from,to){
 }
 //pendant: n nor a are needed here. Connecting model needs to be detangled and simplified a lot
 createConnection=function(from,to){
-  if(from.plug(to)){
-    console.log("connected");
+  if(typeof from.plug === 'function'){
+    if(from.plug(to)){
+      console.log("connected");
+    }else{
+      console.log("no copnnection made");
+    }
   }else{
-    console.log("no copnnection made");
+    console.log("a connection subject didn't have a plug function",from);
   }
 }
 removeConnection=function(connector){
 
 }
+
+
 //pendant:connector module should be part of the mode... maybe
 ConnectorModule=function(parent,parentIndex,x,y){
   this.children=false;
   this.hover=false;
   this.parent=parent;
   this.dragging=false;
+  this.type="cModule";
   var color="#ffffff";
   var cColor=color;
   var hColor="#000000";
@@ -228,17 +235,18 @@ ConnectorModule=function(parent,parentIndex,x,y){
     }
   }
   this.unpatch=function(who){
-    return primaryConnector.unplug(who);
+    return t_Cnm.unplug(who);
   }
 
   this.sendToCh=function(which,what){
     if(t_Cnm.hover){
       console.log("["+t_Cnm.id+"]>>"+what);
     }
+    if(t_Cnm.children[which]!==undefined){
     var who=t_Cnm.children[which].child;
     t_Cnm.highlight();
     if(who)
-    who.receive(what,t_Cnm);
+    who.receive(what,t_Cnm);}
   }
 
   this.sendToAllCh=function(what){
@@ -404,6 +412,9 @@ CodeModule=function(layer,id){
   }
   this.sendToAllCh=function(what){
     primaryConnector.sendToAllCh(what);
+  }
+  this.sendToSelf=function(what){
+    t_Cm.receive(what,t_Cm);
   }
   // this.sendTo=function(who,what){
   //   if(t_Cm.hover){
