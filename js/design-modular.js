@@ -6,7 +6,7 @@ ConnectorGraph=function(layer,from,to){
   this.dragging=false;
   var color="#ffffff";
   var cColor=color;
-  var hColor="#000000";
+  var hColor="#0000cc";
   var sColor="#ffcccc";
 
   function getPoints(){
@@ -19,7 +19,7 @@ ConnectorGraph=function(layer,from,to){
       what:"dynamicLine",
       points: tPoints,
       strokeWidth: 2,
-      stroke:"black"
+      stroke:"grey"
     },
     indicator:{
       what:'dynamicCircle',
@@ -91,8 +91,8 @@ ConnectorGraph=function(layer,from,to){
       // console.log("up",e);
       if(e.underMouse.length>0){
         if(underMouse.type=="cModule"){
-          createConnection(from.parent,null,null,underMouse);
-          createConnection(underMouse,null,null,to);
+          createConnection(from,underMouse);
+          createConnection(underMouse,to);
           from.parent.unpatch(to);
         }else{
           console.log(e.underMouse);
@@ -115,8 +115,8 @@ ConnectorGraph=function(layer,from,to){
 
 }
 //pendant: n nor a are needed here. Connecting model needs to be detangled and simplified a lot
-createConnection=function(parent,n,a,b){
-  if(parent.patchTo(b,n)){
+createConnection=function(from,to){
+  if(from.plug(to)){
     console.log("connected");
   }else{
     console.log("no copnnection made");
@@ -144,7 +144,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
       points: [{x:0, y:0},{ x:-10,y: 0}],
       strokeWidth: 2,
       alpha:1,
-      stroke:"black"
+      stroke:"grey"
     },
     circle:{
       what:'dynamicCircle',
@@ -188,9 +188,10 @@ ConnectorModule=function(parent,parentIndex,x,y){
 
       t_Cnm.isDragging=false;
       t_Cnm.isClicked=false;
+      //umo: underMouse
       var umo=mouse.getHoveredClickable();
       if(umo.type=="cModule"){
-        createConnection(parent,parentIndex,t_Cnm,umo);
+        createConnection(t_Cnm,umo);
       }
     }
   });
@@ -221,8 +222,37 @@ ConnectorModule=function(parent,parentIndex,x,y){
     if(who){
       if(!this.children) this.children=[];
       t_Cnm.children.push({child:who,connectorGraph:new ConnectorGraph(connectorsLayer,t_Cnm,who)});
+      return true;
+    }else{
+      return false;
     }
   }
+  this.unpatch=function(who){
+    return primaryConnector.unplug(who);
+  }
+
+  this.sendToCh=function(which,what){
+    if(t_Cnm.hover){
+      console.log("["+t_Cnm.id+"]>>"+what);
+    }
+    var who=t_Cnm.children[which].child;
+    t_Cnm.highlight();
+    if(who)
+    who.receive(what,t_Cnm);
+  }
+
+  this.sendToAllCh=function(what){
+    if(t_Cnm.hover){
+      console.log("["+t_Cnm.id+"]>>"+what);
+    }
+    t_Cnm.highlight();
+    if(t_Cnm.children)
+    for(var who of t_Cnm.children){
+      if(who.child)
+      who.child.receive(what,t_Cnm);
+    }
+  }
+
   this.unplug=function(who){
     for(var a in t_Cnm.children){
       if(t_Cnm.children[a].child===who){
@@ -240,6 +270,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
       circle.setStroke('black');
     },200);
   }
+
 }
 CodeModule=function(layer,id){
   this.type="cModule";
@@ -254,15 +285,20 @@ CodeModule=function(layer,id){
   this.selected=false;
   this.hover=false;
 
+
   this.group=drawer.create("group",{appendTo:layer,interactive:true});
   var group=this.group;
   this.sprite=group;
-  //pendant: we are creating only one connector surface, thus should not be array anymore
-  var circle=new ConnectorModule(t_Cm,a,0,0);
-  group.add(circle.sprite);
+  this.addConnectorModule= function(){
+    var circle=new ConnectorModule(t_Cm,a,0,0);
+    connectors.push(circle);
+    group.add(circle.sprite);
+    spriteStealsMouse(circle.sprite);
+    return circle;
+  }
 
-  var connector=circle;
-  this.children=function(){return connector.children};
+  var primaryConnector=t_Cm.addConnectorModule();
+  this.children=function(){return primaryConnector.children};
 
   var props={
     dragBody:{
@@ -297,7 +333,6 @@ CodeModule=function(layer,id){
   var tooltip=this.text;
   var dragBody=this.dragBody;
   var sprite=this.group;
-  var connectors=[];
 
   mouse.Draggable.call(this,dragBody);
 
@@ -305,11 +340,10 @@ CodeModule=function(layer,id){
   this.overrideHover=function(){
     return HOR;
   }
-  this.spriteStealsMouse=function(sprite){
+  function spriteStealsMouse(sprite){
     sprite.on('mouseover',function(){HOR=true});
     sprite.on('mouseout',function(){HOR=false});
   }
-  t_Cm.spriteStealsMouse(circle.sprite);
 
   this.mode=function(modeProto){
 
@@ -333,9 +367,11 @@ CodeModule=function(layer,id){
   //the sprite that detects the mouse
 
   this.on('dragging',function(e){
-    connector.sprite.absolute={};
-    connector.sprite.absolute.x=t_Cm.sprite.attrs.x+connector.sprite.attrs.x;
-    connector.sprite.absolute.y=t_Cm.sprite.attrs.y+connector.sprite.attrs.y;
+    for(var a of connectors){
+      a.sprite.absolute={};
+      a.sprite.absolute.x=t_Cm.sprite.attrs.x+a.sprite.attrs.x;
+      a.sprite.absolute.y=t_Cm.sprite.attrs.y+a.sprite.attrs.y;
+    }
   });
   this.on('select',function(){
     console.log("select");
@@ -354,38 +390,20 @@ CodeModule=function(layer,id){
     dragBody.change({fill:cColor});
   });
   //pendant: n not necessary here anymore
-  this.patchTo=function(who,n){
-    console.log(t_Cm.id+"plug to ",who);
-    if(who===t_Cm){
-      return false;
-    }else{
-      connector.plug(who);
-      return true;
-    }
-  }
-  this.unpatch=function(who){
-    return connector.unplug(who);
-  }
+  // this.patchTo=function(who){
+  //   console.log(t_Cm.id+"plug to ",who);
+  //   if(who===t_Cm){
+  //     return false;
+  //   }else{
+  //     primaryConnector.plug(who);
+  //     return true;
+  //   }
+  // }
   this.sendToCh=function(which,what){
-    if(t_Cm.hover){
-      console.log("["+t_Cm.id+"]>>"+what);
-    }
-    var who=connector.children[which].child;
-    connector.highlight();
-    if(who)
-    who.receive(what,t_Cm);
+    primaryConnector.sendToCh(which,what);
   }
-
   this.sendToAllCh=function(what){
-    if(t_Cm.hover){
-      console.log("["+t_Cm.id+"]>>"+what);
-    }
-    connector.highlight();
-    if(connector.children)
-    for(var who of connector.children){
-      if(who.child)
-      who.child.receive(what,t_Cm);
-    }
+    primaryConnector.sendToAllCh(what);
   }
   // this.sendTo=function(who,what){
   //   if(t_Cm.hover){
