@@ -37,19 +37,36 @@ window.onload=function(){
   // rectangle.x = 170;
   // rectangle.y = 170;
   // stage.add(rectangle);
-
-  for(var a=0; a<10; a++){
+  var shoplist=[
+    'licog',
+    'monitor',
+    'flower',
+    'licog',
+    'monitor',
+    'flower',
+    'licog',
+    'monitor',
+    'flower',
+    'licog',
+    'monitor',
+    'flower',
+    'licog',
+    'flower',
+    'licog',
+    'flower',
+    'licog',
+    'flower',
+    'licog',
+    'flower',
+  ];
+  var c=0;
+  for(var element of shoplist){
     var modl;
-    modl=new CodeModule(layer,a);
-    /*if(a==9){
-      modl.mode(ModeCores.notePlayer);
-    }else */if(a<5){
-      modl.mode(ModeCores.flower);
-    }else{
-      modl.mode(ModeCores.licog);
-    }
-    modl.move({x:100,y:30*(10-a)});
+    modl=new CodeModule(layer,c);
+    modl.mode(ModeCores[element]);
+    modl.move({x:100,y:30*(10-c)});
     modules[a]=modl;
+    c++;
   }
 
   // modules[0].modeCore=new ModeCores.notePlayer(modules[0]);

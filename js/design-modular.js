@@ -1,6 +1,6 @@
 
 ConnectorGraph=function(layer,from,to){
-  t_Cg=this;
+  var t_Cg=this;
   console.log("line");
   this.hover=false;
   this.dragging=false;
@@ -37,15 +37,6 @@ ConnectorGraph=function(layer,from,to){
     var what=a;
     if(graphs[a].hasOwnProperty("what")) what=graphs[a].what;
     this[a]=drawer.create(what,graphs[a]);
-  }
-  keyboard.on('keydown',function(e){
-    if(t_Cg.selected) if(e.keyCode===46){
-      t_Cg.disconnect();
-    }
-  });
-  this.disconnect=function(){
-    console.log("unplug");
-    from.unplug(to);
   }
   this.remove=function(){
     sprite.destroyChildren();
@@ -84,7 +75,6 @@ ConnectorGraph=function(layer,from,to){
   }
 
 
-
   this.on('mouseenter', function(e) {
     indicator.change({fill:hColor});
   });
@@ -108,6 +98,11 @@ ConnectorGraph=function(layer,from,to){
       }
     }
     mouseBending=false;
+  });
+  keyboard.on('keydown',function(e){
+    if(t_Cg.selected) if(e.keyCode===46){
+      from.unpatch(to);
+    }
   });
   this.on('select',function(){
     console.log("select");
