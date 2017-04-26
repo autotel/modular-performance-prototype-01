@@ -90,13 +90,12 @@ ConnectorGraph=function(layer,from,to){
       var underMouse=e.underMouse[0];
       // console.log("up",e);
       if(e.underMouse.length>0){
-        if(underMouse.type=="cModule"){
-          createConnection(from,underMouse.parent);
-          createConnection(underMouse,to);
-          from.unpatch(to);
-        }else{
-          console.log(e.underMouse);
-        }
+        var result=false;
+        result=createConnection(from,underMouse);
+        if(result)
+        result=createConnection(underMouse,to);
+        if(result)
+        from.unpatch(to);
       }
     }
     mouseBending=false;
@@ -116,15 +115,21 @@ ConnectorGraph=function(layer,from,to){
 }
 //pendant: n nor a are needed here. Connecting model needs to be detangled and simplified a lot
 createConnection=function(from,to){
+  var result=false;
   if(typeof from.plug === 'function'){
-    if(from.plug(to)){
-      console.log("connected");
+    if(to.type=="connectorTerminal"){
+      result=from.plug(to.parent);
+    }else if(to.type=="codeModule"){
+      result=from.plug(to);
     }else{
-      console.log("no copnnection made");
+      console.log("incompatible connection destination");
+      result=false;
     }
+    console.log("connection creation result is",result);
   }else{
     console.log("a connection subject didn't have a plug function",from);
   }
+  return result;
 }
 removeConnection=function(connector){
 
@@ -137,7 +142,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
   this.hover=false;
   this.parent=parent;
   this.dragging=false;
-  this.type="cModule";
+  this.type="connectorTerminal";
   var color="#ffffff";
   var cColor=color;
   var hColor="#000000";
@@ -197,9 +202,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
       t_Cnm.isClicked=false;
       //umo: underMouse
       var umo=mouse.getHoveredClickable();
-      if(umo.type=="cModule"){
         createConnection(t_Cnm,umo);
-      }
     }
   });
   mouse.on('drag',function(e){
@@ -281,7 +284,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
 
 }
 CodeModule=function(layer,id){
-  this.type="cModule";
+  this.type="codeModule";
   ModuleBase.call(this);
   var t_Cm=this;
   var color="#cccccc";
@@ -427,6 +430,10 @@ CodeModule=function(layer,id){
       console.log("["+t_Cm.id+"]<<"+what);
     }
     t_Cm.modeCore.onSignal({message:what,from:this});
+  }
+
+  this.plug=function(who){
+    return primaryConnector.plug(who);
   }
   //optional repulsion force?
   //
