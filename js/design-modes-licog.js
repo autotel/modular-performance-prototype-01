@@ -1,5 +1,11 @@
 (function(){
   var tCoreMan=this;
+  var types=[
+    "♪",
+    "&",
+    "M",
+    "◌"
+  ];
   this.licog=function(owner){
     var tCore=this;
     var pMap=[
@@ -25,12 +31,6 @@
       [["P0","0=0"],["P0","1=0"]]
     ];
     var myType=0;
-    var types=[
-      "♪",
-      "&",
-      "M",
-      "◌"
-    ];
     this.sprite=drawer.create('group',{});
     this.text=drawer.create('dynamicText',{appendTo:this.sprite,text:types[myType],fill:"red"});
     var text=this.text;
@@ -41,6 +41,8 @@
     var nextClockQueue=[];
     var nextAfterClockQueue=[];
     var currentStep=0;
+
+    
 
     function changeType(newType){
       myType=Math.abs(newType);
