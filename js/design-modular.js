@@ -247,7 +247,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
 
   this.sendToCh=function(which,what){
     if(t_Cnm.hover){
-      console.log("["+t_Cnm.id+"]>>"+what);
+      console.log("["+parent.id+","+which+"]>>"+what);
     }
     if(t_Cnm.children[which]!==undefined){
     var who=t_Cnm.children[which].child;
@@ -258,7 +258,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
 
   this.sendToAllCh=function(what){
     if(t_Cnm.hover){
-      console.log("["+t_Cnm.id+"]>>"+what);
+      console.log("["+parent.id+",all]>>"+what);
     }
     t_Cnm.highlight();
     if(t_Cnm.children)
@@ -305,7 +305,7 @@ CodeModule=function(layer,id){
   var group=this.group;
   this.sprite=group;
   this.addConnectorModule= function(){
-    var circle=new ConnectorModule(t_Cm,a,0,0);
+    var circle=new ConnectorModule(t_Cm,connectors.length,0,0);
     connectors.push(circle);
     group.add(circle.sprite);
     spriteStealsMouse(circle.sprite);
@@ -431,9 +431,9 @@ CodeModule=function(layer,id){
   // }
   this.receive=function(what,whom){
     if(t_Cm.hover){
-      console.log("["+t_Cm.id+"]<<"+what);
+      console.log("["+t_Cm.id+"]<<"+what+"<<["+whom+"]");
     }
-    t_Cm.modeCore.onSignal({message:what,from:this});
+    t_Cm.modeCore.onSignal({message:what,from:whom});
   }
 
   this.plug=function(who){

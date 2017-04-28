@@ -2,6 +2,7 @@
   var tCoreMan=this;
 
   this.operator=function(owner){
+    this.mode="operator";
     var tCore=this;
     var operations=[false,false,false];
     var operationMap={
@@ -25,6 +26,8 @@
       //pendant: add one function that is for multiple functions in a chain
     };
     this.sprite=drawer.create('group',{});
+    var textGraph=new drawer.create('text',{x:-30,y:-30,text:this.mode,fill:"red"});
+    this.sprite.add(textGraph);
     var gridButtons=[];
     var pitch=18;
     var displace={x:-15,y:-14};
