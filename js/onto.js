@@ -71,7 +71,7 @@ var mouse=new (function(){
         p.buttons=buttonsDragging;
         p.delta={x:p.offsetX-lastClickpos.x,y:p.offsetY-lastClickpos.y}
         p.offset={x:p.offsetX,y:p.offsetY}
-        t_M.handle('drag',e);
+        t_M.handle('drag',p);
         var chainReturn=false;
         eachClickable(function(){
           if(!chainReturn)
