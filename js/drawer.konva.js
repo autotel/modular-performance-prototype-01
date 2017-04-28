@@ -109,6 +109,7 @@ var drawer=new (function(){
           }else if(a=='points'){
             var serializedPoints=[];
             for(var a in newProps.points){
+              if(!newProps.points[a]) newProps.points[a]=0;
               serializedPoints.push(newProps.points[a].x);
               serializedPoints.push(newProps.points[a].y);
             }

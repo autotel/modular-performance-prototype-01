@@ -22,8 +22,8 @@ var mouse=new (function(){
   var t_M=this;
   var lastClickpos={x:0,y:0}
   this.dragging=false;
-  this.buttonsDown={};
-  this.buttonsDragging={};
+  var buttonsDown={};
+  var buttonsDragging={};
   var onMouseWheel=function(e){
     e.delta=Math.sign(e.wheelDelta);
     t_M.handle('wheel',e);
@@ -33,7 +33,7 @@ var mouse=new (function(){
   document.addEventListener("mousedown", function(e){
     // console.log(e);
     lastClickpos={x:e.offsetX,y:e.offsetY};
-    t_M.buttonsDown[e.buttons]=true;
+    buttonsDown[e.buttons]=true;
     t_M.handle('mousedown',e);
     t_M.handle('click',e);
     var chainReturn=false;
@@ -43,7 +43,7 @@ var mouse=new (function(){
     });
   });
   document.addEventListener("mouseup", function(e){
-    t_M.buttonsDown[e.buttons]=false;
+    buttonsDown[e.buttons]=false;
     e.underMouse=[];
     var chainReturn=false;
     //pendant cheinreturn shoudl exit the loop
@@ -58,20 +58,24 @@ var mouse=new (function(){
     t_M.handle('mouseup',e);
   });
   document.addEventListener("mousemove",function(e){
+    var p=[];
+    for (var a in e){
+      p[a]=e[a];
+    }
     t_M.pos={x:e.offsetX,y:e.offsetY};
     t_M.handle('mousemove',e);
-    for(var a in t_M.buttonsDown){
+    for(var a in buttonsDown){
       if(a){
         buttonsDragging[a]=true;
-        e.button=a;
-        e.buttons=buttonsDragging;
-        e.delta={x:e.offsetX-lastClickpos.x,y:e.offsetY-lastClickpos.y}
-        e.offset={x:e.offsetX,y:e.offsetY}
+        p.button=a;
+        p.buttons=buttonsDragging;
+        p.delta={x:p.offsetX-lastClickpos.x,y:p.offsetY-lastClickpos.y}
+        p.offset={x:p.offsetX,y:p.offsetY}
         t_M.handle('drag',e);
         var chainReturn=false;
         eachClickable(function(){
           if(!chainReturn)
-          chainReturn=this.onDrag(e);
+          chainReturn=this.onDrag(p);
         });
       }else{
         buttonsDragging[a]=false;
