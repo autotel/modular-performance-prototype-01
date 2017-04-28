@@ -115,7 +115,7 @@
       // console.log(e);
       if(owner.selected)
       if(e.keyCode===32){
-        tCore.onSignal({message:0});
+        tCore.onSignal({message:new Message("emptyBang")});
       }else if(e.keyCode===38){
         changeType(myType+1);
       }else if(e.keyCode===40){
@@ -147,7 +147,7 @@
     this.onAfterClock=function(){
       for(var a in nextAfterClockQueue){
         if(typeof tCore[nextAfterClockQueue[a][0]] === 'function'){
-          tCore[nextAfterClockQueue[a][0]](nextAfterClockQueue[a][1]);
+          tCore[nextAfterClockQueue[a][0]](nextAfterClockQueue[a][1],nextAfterClockQueue[a][2]);
         }else{
           console.log("couldnt run "+a[0]);
         }
@@ -162,7 +162,7 @@
       }else{
         play(number);
       }
-      nextClockQueue.push(["subSend","A10"]);
+      nextClockQueue.push(["subSend","A",new Message("emptyBang")]);
     }
 
     this.onSignal=function(e){
@@ -170,42 +170,36 @@
       // console.log(msg);
       if(myType==0){
 
-        nextClockQueue.push(["send","A10"]);
-        nextClockQueue.push(["send","S"+msg]);
+        nextClockQueue.push(["send","A",new Message("emptyBang")]);
+        nextClockQueue.push(["send","S",new Message(msg)]);
       }else if(myType==1){
-        tCore.send("A"+msg);
+        tCore.send("A",msg);
         triggerSubLicog("A",msg);
       }else if(myType==2){
-        currentStep=msg;
-        // currentStep%=owner.children().length;
-        console.log("currentChildren: "+currentStep);
-        tCore.send(msg+"");
+        currentStep=msg.headerAddress.get();
+        // currentStep%=parent.children().length;
+        console.log("currentStep"+currentStep);
+        tCore.send(currentStep,msg);
         triggerSubLicog(currentStep,msg);
       }else if(myType==3){
         currentStep++;
         // currentStep%=owner.children().length;
         console.log("currentChildren: "+currentStep);
-        tCore.send(currentStep+""+msg);
+        tCore.send(currentStep,msg);
         triggerSubLicog(currentStep,msg);
       }
     };
 
-    this.send=function(what){
-      var whom=what[0];
-      what=""+what[1]+what[2];
-      console.log("send to ",whom);
+    this.send=function(whom,what){
       if(whom==="A"){
         owner.sendToAllCh(what);
       }else if(whom==="S"){
         owner.sendToSelf(what);
       }else{
-        owner.sendToCh(parseInt(whom),what);
+        owner.sendToCh(whom,what);
       }
     }
-    this.subSend=function(what){
-      var whom=what[0];
-      what=""+what[1]+what[2];
-      console.log("subsend to ",whom);
+    this.subSend=function(whom,what){
       if(whom==="A"){
         postConnector.sendToAllCh(what);
       }else if(whom==="S"){

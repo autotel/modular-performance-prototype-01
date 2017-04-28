@@ -247,7 +247,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
 
   this.sendToCh=function(which,what){
     if(t_Cnm.hover){
-      console.log("["+parent.id+","+which+"]>>"+what);
+      console.log("["+parent.id+","+which+"]>>"+what.stringify());
     }
     if(t_Cnm.children[which]!==undefined){
     var who=t_Cnm.children[which].child;
@@ -258,7 +258,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
 
   this.sendToAllCh=function(what){
     if(t_Cnm.hover){
-      console.log("["+parent.id+",all]>>"+what);
+      console.log("["+parent.id+",all]>>"+what.stringify());
     }
     t_Cnm.highlight();
     if(t_Cnm.children)
@@ -431,7 +431,7 @@ CodeModule=function(layer,id){
   // }
   this.receive=function(what,whom){
     if(t_Cm.hover){
-      console.log("["+t_Cm.id+"]<<"+what+"<<["+whom+"]");
+      console.log("["+t_Cm.id+"]<<"+what.stringify()+"<<["+whom+"]");
     }
     t_Cm.modeCore.onSignal({message:what,from:whom});
   }

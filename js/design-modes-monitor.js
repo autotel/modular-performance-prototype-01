@@ -16,9 +16,7 @@
       console.log("sec22");
       var inString="";
       var outString="";
-      for(var a of e.message){
-        inString+=a;
-      }
+      inString+=e.message.stringify();
       incomingQueue.push(inString);
       if(incomingQueue.length>10){
         incomingQueue.splice(0,1);

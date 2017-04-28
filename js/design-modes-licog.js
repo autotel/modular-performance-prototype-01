@@ -103,7 +103,7 @@
     this.onAfterClock=function(){
       for(var a in nextAfterClockQueue){
         if(typeof tCore[nextAfterClockQueue[a][0]] === 'function'){
-          tCore[nextAfterClockQueue[a][0]](nextAfterClockQueue[a][1]);
+          tCore[nextAfterClockQueue[a][0]](nextAfterClockQueue[a][1],nextAfterClockQueue[a][2]);
         }else{
           console.log("couldnt run "+a[0]);
         }
@@ -113,42 +113,38 @@
 
     this.onSignal=function(e){
       var msg=e.message;
-      // console.log(msg);
-      if(myType==0){
-        if(playsNote)
-        tCore.play(note);
-        nextClockQueue.push(["send","A10"]);
-      }else if(myType==1){
-        tCore.send("A"+msg);
-      }else if(myType==2){
-        currentStep=msg;
-        currentStep%=owner.children().length;
-        console.log("currentChildren: "+currentStep);
-        tCore.send(msg+"");
-      }else if(myType==3){
-        currentStep++;
-        currentStep%=owner.children().length;
-        console.log("currentChildren: "+currentStep);
-        tCore.send(currentStep+""+msg);
+      if(msg.headerFunction.get()==0){
+        if(myType==0){
+          if(playsNote)
+          tCore.play(note);
+          nextClockQueue.push(["send","A",new Message([0x00,0x01,note])]);
+        }else if(myType==1){
+          tCore.send("A",msg);
+        }else if(myType==2){
+          currentStep=msg.headerAddress.get();
+          currentStep%=owner.children().length;
+          tCore.send(currentStep,new Message("emptyBang"));
+        }else if(myType==3){
+          currentStep++;
+          currentStep%=owner.children().length;
+          tCore.send(currentStep,new Message("emptyBang"));
+        }
       }
     };
 
-    this.send=function(what){
-      var whom=what[0];
-      what=""+what[1]+what[2];
+    this.send=function(whom,what){
+      // console.log("send to ",whom);
       if(whom==="A"){
-        console.log("send to ",whom);
         owner.sendToAllCh(what);
       }else{
-        console.log("send to ",whom);
-        owner.sendToCh(parseInt(whom),what);
+        owner.sendToCh(whom,what);
       }
     }
     keyboard.on('keydown',function(e){
       // console.log(e);
       if(owner.selected)
       if(e.keyCode===32){
-        tCore.onSignal({message:0});
+        tCore.onSignal({message:new Message([0x00,0x01,note])});
       }else if(e.keyCode===38){
         changeType(myType+1);
       }else if(e.keyCode===40){

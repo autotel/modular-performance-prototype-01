@@ -1,4 +1,7 @@
 var Message=function(data){
+  if(data=="emptyBang"){
+    data=[0x00,0x00,0x00];
+  }
   //I made this class to simulate message communication in a hardware situation
   //it is utterly useless in the context of javascript
   var tMessage=this;
@@ -48,7 +51,7 @@ var Message=function(data){
       return data[headerLocation]&0xf;
     },
   }
-  this.log=function(){
+  this.stringify=function(){
     var hexString="[";
     for(var a in data){
       hexString+="0x"+data[a].toString(16);
@@ -58,7 +61,10 @@ var Message=function(data){
       hexString+=",";
     }
     hexString+="]";
-    console.log(hexString,data);
+    return hexString;
+  }
+  this.log=function(){
+    console.log(tMessage.stringify(),data);
   }
   return this;
 }
