@@ -151,18 +151,27 @@
   }
   this.muxer=function(owner){
     var tCore=this;
+    var currentChild=0;
     this.sprite=drawer.create('group',{});
-    this.text=drawer.create('dynamicText',{appendTo:this.sprite,text:"start",fill:"red",x:-15,y:-15});
+    this.text=drawer.create('dynamicText',{appendTo:this.sprite,text:"muxer",fill:"red",x:-15,y:-15});
     var text=this.text;
     var sprite=this.sprite;
     tCoreMan.Blank.call(this,owner);
-    var incomingQueue=[];
-    this.update=function(){};
-    this.draw=function(){};
-    this.onClock=function(){};
-    this.onAfterClock=function(){};
-    this.onSignal=function(e){};
-    this.send=function(a){};
+    function updateText(){
+      text.change({text:"muxer\n"+currentChild});
+    }
+    this.onSignal=function(e){
+      var message=e.message;
+      var currentChild=message.data[1]%owner.children().length;
+      tCore.send(currentChild,message);
+    };
+    this.send=function(whom,what){
+      if(whom==="A"){
+        owner.sendToAllCh(what);
+      }else{
+        owner.sendToCh(whom,what);
+      }
+    }
   }
   var outputs=["synth play"]
   this.output=function(owner){
