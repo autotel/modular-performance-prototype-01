@@ -3,8 +3,7 @@ var Message=function(data){
   //it is utterly useless in the context of javascript
   var tMessage=this;
   var headerLocation=0;
-
-
+  this.isMessage=true;
   if(data.length==0){
     console.log("data is invalid");
     return false;
@@ -12,6 +11,7 @@ var Message=function(data){
   if(data.length>3){
     //if data longer than three, we use a long message configuration
     headerLocation=1;
+    //function 15 is reserved for message formatting purposes
     data.unshift(0xF0);
     data.push(0x0F);
   }

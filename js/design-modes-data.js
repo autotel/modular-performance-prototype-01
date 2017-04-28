@@ -2,7 +2,7 @@
   var tCoreMan=this;
 
   var names={};
-  var utils.newName=function(p){
+  utils.newName=function(p){
     if(names.hasOwnProperty(p)){
       names[p]++;
     }else{
@@ -60,6 +60,7 @@
       if(active){
         charScript="";
         text.setText(charScript);
+        tSq.handle("valuechange",charScript);
         keyboard.on('keydown.'+name,function(e){
           console.log(e);
           if (e.keyCode==8){
@@ -83,6 +84,7 @@
           }else {}
           console.log(charScript);
           text.setText(charScript);
+          tSq.handle("valuechange",charScript);
         });
       }else{
         keyboard.off('keydown.'+name);
