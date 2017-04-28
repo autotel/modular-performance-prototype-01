@@ -35,7 +35,7 @@
         text:{wrap:"char",y:-2,width:pitch,height:pitch,lineHeight:0.65,fontSize:13,fontFamily:"Lucida Console",fill:"black"},
       };
       var rect=new tCoreMan.dataButton(props);
-      owner.spriteStealsMouse(rect.sprite);
+      // owner.spriteStealsMouse(rect.sprite);
       gridButtons.push(rect);
       tCore.sprite.add(rect.sprite);
       rect.on('valuechange',function(b){

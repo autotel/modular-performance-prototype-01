@@ -79,7 +79,7 @@ window.onload=function(){
     var modl;
     modl=new CodeModule(layer,c);
     modl.mode(ModeCores[element]);
-    modl.move({x:100,y:30*(10-c)});
+    modl.move({x:100,y:30*(shoplist.length-c)});
     modules[a]=modl;
     c++;
   }
