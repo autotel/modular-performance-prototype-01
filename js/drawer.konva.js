@@ -1,5 +1,5 @@
-//pixi js
-var drawer=(function(){
+'use strict';
+var drawer=new (function(){
   var tDrawer=this;
   var renderer;
   var layers=[];

@@ -1,7 +1,8 @@
 // var synthBase=function(){
 //   this.play=function(a){};
 // }
-var synth=(function(){
+'use strict';
+var synth=new (function(){
   var Drumkit=function(){
     var options={};
     this.name="drumkit1";

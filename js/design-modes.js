@@ -1,4 +1,5 @@
-ModeCores=(function(){
+'use strict';
+var ModeCores=new (function(){
   var tCoreMan=this;
   this.Blank=function(owner){
     var tCore=this;
@@ -8,10 +9,7 @@ ModeCores=(function(){
     this.onClock=function(){};
     this.onAfterClock=function(){};
     this.onSignal=function(e){};
-    this.send=function(a){
-      // console.log("would send ",a);
-
-    };
+    this.send=function(a){};
     metronome.on('beat',function(){tCore.onClock()});
     metronome.on('afterbeat',function(){tCore.onAfterClock()});
     master.on('update',function(){tCore.draw();tCore.update();});
@@ -78,7 +76,7 @@ ModeCores=(function(){
       props.fill="red";
       // props.stroke="black";
       var rect=new tCoreMan[button](props);
-      owner.spriteStealsMouse(rect.sprite);
+      owner.//^001 spriteStealsMouse(rect.sprite);
       gridButtons.push(rect);
       tCore.sprite.add(rect.sprite);
     }
@@ -99,7 +97,7 @@ ModeCores=(function(){
       props.sColor="#ff0000";
       props.nColor="#333333";
       var rect=new tCoreMan.squareButton(props);
-      owner.spriteStealsMouse(rect.sprite);
+      owner.//^001 spriteStealsMouse(rect.sprite);
       stateSet[propNames[a]]=rect;
       tCore.sprite.add(rect.sprite);
     }
@@ -134,7 +132,7 @@ ModeCores=(function(){
       props.sColor="red";
       props.nColor="#333333";
       var rect=new tCoreMan.squareButton(props);
-      owner.spriteStealsMouse(rect.sprite);
+      owner.//^001 spriteStealsMouse(rect.sprite);
       stateSet[propNames[a]]=rect;
       tCore.sprite.add(rect.sprite);
     }

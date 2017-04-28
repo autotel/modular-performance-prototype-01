@@ -1,9 +1,9 @@
-//onto
-var master=(function(){
+'use strict';
+var master=new (function(){
   onHandlers.call(this);
   return this;
 })();
-metronome=(function(){
+var metronome=new (function(){
   onHandlers.call(this);
   var tMetro=this;
   this.verbose=false;
@@ -16,10 +16,10 @@ metronome=(function(){
   Tone.Transport.start();
   return this;
 })();
-mouse=(function(){
+var mouse=new (function(){
   onHandlers.call(this);
   this.pos={x:0,y:0};
-  t_M=this;
+  var t_M=this;
   var lastClickpos={x:0,y:0}
   this.dragging=false;
   this.buttonsDown={};
@@ -33,7 +33,7 @@ mouse=(function(){
   document.addEventListener("mousedown", function(e){
     // console.log(e);
     lastClickpos={x:e.offsetX,y:e.offsetY};
-    buttonsDown[e.buttons]=true;
+    t_M.buttonsDown[e.buttons]=true;
     t_M.handle('mousedown',e);
     t_M.handle('click',e);
     var chainReturn=false;
@@ -43,7 +43,7 @@ mouse=(function(){
     });
   });
   document.addEventListener("mouseup", function(e){
-    buttonsDown[e.buttons]=false;
+    t_M.buttonsDown[e.buttons]=false;
     e.underMouse=[];
     var chainReturn=false;
     //pendant cheinreturn shoudl exit the loop
@@ -60,7 +60,7 @@ mouse=(function(){
   document.addEventListener("mousemove",function(e){
     t_M.pos={x:e.offsetX,y:e.offsetY};
     t_M.handle('mousemove',e);
-    for(var a in buttonsDown){
+    for(var a in t_M.buttonsDown){
       if(a){
         buttonsDragging[a]=true;
         e.button=a;
@@ -198,15 +198,16 @@ mouse=(function(){
   }
   return this;
 })();
-var keyboard=(function(){
+var keyboard=new(function(){
+  onHandlers.call(this);
   var thk=this;
-  addEventListener("keydown", function(event){
+  window.addEventListener("keydown", function(event){
     // console.log(event);
     thk.handle("keydown",event);
   });
   return this;
 })();
-ModuleBase=function(){
+var ModuleBase=function(){
   if(!this.handle)
   onHandlers.call(this);
   // console.log("new module");

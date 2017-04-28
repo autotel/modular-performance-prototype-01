@@ -1,3 +1,4 @@
+'use strict';
 (function(){
   var nColor="#777777";
   var sColor="#FFFFFF";

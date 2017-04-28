@@ -1,5 +1,5 @@
-
-ConnectorGraph=function(layer,from,to){
+'use strict';
+var ConnectorGraph=function(layer,from,to){
   var t_Cg=this;
   console.log("line");
   this.hover=false;
@@ -118,7 +118,7 @@ ConnectorGraph=function(layer,from,to){
 
 }
 //pendant: n nor a are needed here. Connecting model needs to be detangled and simplified a lot
-createConnection=function(from,to){
+var createConnection=function(from,to){
   var result=false;
   if(typeof from.plug === 'function'){
     if(to.type=="connectorTerminal"){
@@ -135,13 +135,10 @@ createConnection=function(from,to){
   }
   return result;
 }
-removeConnection=function(connector){
-
-}
 
 
 //pendant:connector module should be part of the mode... maybe
-ConnectorModule=function(parent,parentIndex,x,y){
+var ConnectorModule=function(parent,parentIndex,x,y){
   this.children=false;
   this.hover=false;
   this.parent=parent;
@@ -287,7 +284,7 @@ ConnectorModule=function(parent,parentIndex,x,y){
   }
 
 }
-CodeModule=function(layer,id){
+var CodeModule=function(layer,id){
   this.type="codeModule";
   ModuleBase.call(this);
   var t_Cm=this;
@@ -373,7 +370,7 @@ CodeModule=function(layer,id){
   this.overrideHover=function(){
     return HOR;
   }
-  
+
   // function //^001 spriteStealsMouse(sprite){
   //   // sprite.on('mouseover',function(){HOR=true});
   //   // sprite.on('mouseout',function(){HOR=false});

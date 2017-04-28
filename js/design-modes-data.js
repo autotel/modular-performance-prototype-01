@@ -1,3 +1,4 @@
+'use strict';
 (function(){
   var tCoreMan=this;
 
@@ -152,7 +153,7 @@
     tCoreMan.Blank.call(this,owner);
     var gridButtons=[];
     this.gridButtons=gridButtons;
-    var textGraph=new drawer.create('text',{});
+    var textGraph=drawer.create('text',{});
     this.sprite.add(textGraph);
     var pitch=18;
     var displace={x:-15,y:-14};
@@ -167,7 +168,7 @@
       // props.fill="red";
       // props.stroke="black";
       var rect=new tCoreMan.dataButton(props);
-      owner.spriteStealsMouse(rect.sprite);
+      owner.//^001 spriteStealsMouse(rect.sprite);
       gridButtons.push(rect);
       tCore.sprite.add(rect.sprite);
     }
@@ -188,7 +189,7 @@
       props.height=pitch;
       props.nColor="#333333";
       var rect=new tCoreMan.squareButton(props);
-      owner.spriteStealsMouse(rect.sprite);
+      owner.//^001 spriteStealsMouse(rect.sprite);
       stateSet[propNames[a]]=rect;
       tCore.sprite.add(rect.sprite);
     }

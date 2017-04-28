@@ -1,3 +1,4 @@
+'use strict';
 var Message=function(data){
   if(data=="emptyBang"){
     data=[0x00,0x00,0x00];
