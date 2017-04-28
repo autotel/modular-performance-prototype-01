@@ -7,21 +7,21 @@
     var operations=[false,false,false];
     var operationMap={
       '+':function(input,value){
-        return input+=parseInt(value[1],16);
-      },'-':function(value){
-        return input-=parseInt(value[1],16);
-      },'*':function(value){
-        return input*=parseInt(value[1],16);
-      },'/':function(value){
-        return input/=parseInt(value[1],16);
-      },'%':function(value){
-        return input%=parseInt(value[1],16);
-      },'=':function(value){
-        return input=parseInt(value[1],16);
-      },'&':function(value){
-        return input&=parseInt(value[1],16);
-      },'|':function(value){
-        return input|=parseInt(value[1],16);
+        return input+parseInt(value);
+      },'-':function(input,value){
+        return input-parseInt(value);
+      },'*':function(input,value){
+        return input*parseInt(value);
+      },'/':function(input,value){
+        return input/parseInt(value);
+      },'%':function(input,value){
+        return input%parseInt(value);
+      },'=':function(input,value){
+        return parseInt(value);
+      },'&':function(input,value){
+        return input&parseInt(value);
+      },'|':function(input,value){
+        return input|parseInt(value);
       }
       //pendant: add one function that is for multiple functions in a chain
     };
@@ -31,19 +31,24 @@
     var gridButtons=[];
     var pitch=18;
     var displace={x:-15,y:-14};
-    for(var a in operations){
+    var newRect=function(a){
       var props={
         group:{x:(a%4)*pitch+displace.x,y:Math.floor(a/4)*pitch+displace.y},
         rect:{width:pitch,height:pitch,stroke:'black'},
         text:{wrap:"char",y:-2,width:pitch,height:pitch,lineHeight:0.65,fontSize:13,fontFamily:"Lucida Console",fill:"black"},
       };
       var rect=new tCoreMan.dataButton(props);
+
       // owner.spriteStealsMouse(rect.sprite);
       gridButtons.push(rect);
       tCore.sprite.add(rect.sprite);
       rect.on('valuechange',function(b){
+        console.log("op"+a+"change");
         operations[a]=b;
       });
+    }
+    for(var a in operations){
+      newRect(a);
     }
     var text=this.text;
     var sprite=this.sprite;
@@ -52,21 +57,18 @@
     this.draw=function(){};
     this.onSignal=function(e){
       var message=e.message;
-      //if incoming message is not a Message, convert it to it.
-      if(message.isMessage!==true){
-        message=new Message(message);
-      }
       for(var a in operations){
         if(operations[a]!==false&&operations[a].length>1){
           var operation=operations[a][0];
           var value=operations[a].slice(1,operations[a].length);
+          // console.log("operator",operation,value,message.data[a],message);
           message.data[a]=operationMap[operation](message.data[a],value);
         }
       }
-      tCore.send(e.message);
+      tCore.send(message);
     };
-    this.send=function(a){
-      owner.send(a);
+    this.send=function(what){
+      owner.sendToAllCh(what);
     };
   }
   this.clockBanger=function(owner){
