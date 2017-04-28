@@ -75,7 +75,7 @@
             keyboard.off('keydown.'+name);
             tSq.setActive(false);
             dataButtons[(myId+1)%(dataButtons.length-1)].enableTextEdit();
-          }else  if (e.keyCode==16){
+          }else if (e.keyCode==16){
             //SHIFT
           }else if(e.keyCode>0){
             charScript+=e.key.toUpperCase ( );
@@ -103,6 +103,7 @@
     }
     this.setActive=function(a){
       active=a;
+      if(active){tSq.highlight()}else{tSq.unHighlight()};
     }
     this.sprite=group;
     this.getData=function(){
