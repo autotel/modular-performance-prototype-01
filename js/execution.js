@@ -38,41 +38,17 @@ window.onload=function(){
   // rectangle.y = 170;
   // stage.add(rectangle);
   var shoplist=[
+    //composite
+    'flower',
+    //molecule
     'licog',
+    //submolecule
     'monitor',
-    'flower',
-    'licog',
-    'monitor',
-    'flower',
-    'licog',
-    'monitor',
-    'flower',
-    'licog',
-    'monitor',
-    'flower',
-    'licog',
-    'flower',
-    'licog',
-    'flower',
-    'licog',
     'operator',
-    'clockBanger',
+    'banger',
     'muxer',
-    'operator',
-    'clockBanger',
-    'muxer',
-    'operator',
-    'clockBanger',
-    'muxer',
-    'operator',
-    'clockBanger',
-    'muxer',
-    'operator',
-    'clockBanger',
-    'muxer',
-    'operator',
-    'clockBanger',
-    'muxer',
+    'fifo',
+    'output',
   ];
   var c=0;
   for(var element of shoplist){
@@ -80,7 +56,7 @@ window.onload=function(){
     modl=new CodeModule(layer,c);
     modl.mode(ModeCores[element]);
     modl.move({x:100,y:30*(shoplist.length-c)});
-    modules[a]=modl;
+    modules[c]=modl;
     c++;
   }
 

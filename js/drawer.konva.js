@@ -126,6 +126,15 @@ var drawer=(function(){
             ret[a]=newProps[a];
           }
         }
+      };
+      ret.animate=function(newProps){
+        newProps.node=ret;
+        if(!newProps.duration){
+          newProps.duration=0.1;
+        }
+        var tween=new Konva.Tween(newProps);
+        tween.play();
+        return tween;
       }
       return ret;
     }

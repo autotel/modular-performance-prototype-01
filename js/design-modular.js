@@ -299,18 +299,27 @@ CodeModule=function(layer,id){
   this.id=id;
   this.selected=false;
   this.hover=false;
+  var myModeProto="none";
 
 
-  this.group=drawer.create("group",{appendTo:layer,interactive:true});
+  this.group=drawer.create("dynamicGroup",{appendTo:layer,interactive:true});
   var group=this.group;
   this.sprite=group;
   this.addConnectorModule= function(){
     var circle=new ConnectorModule(t_Cm,connectors.length,0,0);
     connectors.push(circle);
     group.add(circle.sprite);
-    spriteStealsMouse(circle.sprite);
+    //^001 spriteStealsMouse(circle.sprite);
     return circle;
   }
+
+  keyboard.on('keydown',function(e){
+    if(e.keyCode==68)
+    if(t_Cm.selected){
+      console.log(this.selected);
+      duplicate();
+    }
+  });
 
   var primaryConnector=t_Cm.addConnectorModule();
   this.children=function(){return primaryConnector.children};
@@ -351,19 +360,30 @@ CodeModule=function(layer,id){
 
   mouse.Draggable.call(this,dragBody);
 
+  var duplicate=function(){
+    var nmod=new CodeModule(layer,modules.length);
+    nmod.mode(myModeProto);
+
+    nmod.move({x:sprite.attrs.x,y:sprite.attrs.y});
+    nmod.sprite.animate({x:sprite.attrs.x+30,y:sprite.attrs.y+30,easing:Konva.Easings.ElasticEaseOut});
+
+    modules.push(nmod);
+  };
   var HOR=false;
   this.overrideHover=function(){
     return HOR;
   }
-  function spriteStealsMouse(sprite){
-    sprite.on('mouseover',function(){HOR=true});
-    sprite.on('mouseout',function(){HOR=false});
-  }
+  
+  // function //^001 spriteStealsMouse(sprite){
+  //   // sprite.on('mouseover',function(){HOR=true});
+  //   // sprite.on('mouseout',function(){HOR=false});
+  // }
 
   this.mode=function(modeProto){
 
     t_Cm.modeCore=new modeProto(t_Cm);
     group.add(t_Cm.modeCore.sprite);
+    myModeProto=modeProto;
   }
 
 

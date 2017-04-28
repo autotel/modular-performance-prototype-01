@@ -5,7 +5,7 @@
     var tCore=this;
     this.sprite=drawer.create('group',{});
     this.mode="monitor";
-    this.text=new drawer.create('dynamicText',{x:-30,y:-30,text:this.mode,fill:"red"});
+    this.text=drawer.create('dynamicText',{x:-30,y:-30,text:this.mode,fill:"red",listening:false});
     var text=this.text;
     var sprite=this.sprite;
     sprite.add(text);

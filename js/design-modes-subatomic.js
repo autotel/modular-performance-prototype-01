@@ -7,26 +7,26 @@
     var operations=[false,false,false];
     var operationMap={
       '+':function(input,value){
-        return input+parseInt(value);
+        return input+parseInt(value,16);
       },'-':function(input,value){
-        return input-parseInt(value);
+        return input-parseInt(value,16);
       },'*':function(input,value){
-        return input*parseInt(value);
+        return input*parseInt(value,16);
       },'/':function(input,value){
-        return input/parseInt(value);
+        return input/parseInt(value,16);
       },'%':function(input,value){
-        return input%parseInt(value);
+        return input%parseInt(value,16);
       },'=':function(input,value){
-        return parseInt(value);
+        return parseInt(value,16);
       },'&':function(input,value){
-        return input&parseInt(value);
+        return input&parseInt(value,16);
       },'|':function(input,value){
-        return input|parseInt(value);
+        return input|parseInt(value,16);
       }
       //pendant: add one function that is for multiple functions in a chain
     };
     this.sprite=drawer.create('group',{});
-    var textGraph=new drawer.create('text',{x:-30,y:-30,text:this.mode,fill:"red"});
+    var textGraph=drawer.create('text',{x:-30,y:-30,text:this.mode,fill:"red"});
     this.sprite.add(textGraph);
     var gridButtons=[];
     var pitch=18;
@@ -39,7 +39,7 @@
       };
       var rect=new tCoreMan.dataButton(props);
 
-      // owner.spriteStealsMouse(rect.sprite);
+      // owner.//^001 spriteStealsMouse(rect.sprite);
       gridButtons.push(rect);
       tCore.sprite.add(rect.sprite);
       rect.on('valuechange',function(b){
@@ -71,20 +71,82 @@
       owner.sendToAllCh(what);
     };
   }
-  this.clockBanger=function(owner){
+  this.fifo=function(owner){
     var tCore=this;
     this.sprite=drawer.create('group',{});
-    this.text=drawer.create('dynamicText',{appendTo:this.sprite,text:"start",fill:"red",x:-15,y:-15});
-    var text=this.text;
+    this.mode="fifo";
+    var text=drawer.create('dynamicText',{x:-30,y:-30,text:this.mode,fill:"red",listening:false});
+    this.sprite.add(text);
     var sprite=this.sprite;
     tCoreMan.Blank.call(this,owner);
-    var incomingQueue=[];
-    this.update=function(){};
-    this.draw=function(){};
-    this.onClock=function(){};
-    this.onAfterClock=function(){};
-    this.onSignal=function(e){};
-    this.send=function(a){};
+    var queue=[];
+    function updateText(){
+      var newVal="";
+      for(var a of queue){
+        newVal+=a.stringify()+"\n";
+      }
+      text.change({text:"fifo\n"+newVal});
+    }
+    this.onSignal=function(e){
+      var message=e.message;
+      var functionNumber=message.headerFunction.get();
+      if(owner.hover) console.log("function no "+functionNumber);
+      if(functionNumber==0x0){//get next & remove it
+        if(queue.length>0){
+          tCore.send(queue[0]);
+          queue.shift();
+        }
+      }else if(functionNumber==0x1){//get all
+        for (var a of queue){
+          tCore.send(a);
+        }
+        queue=[];
+      }else if(functionNumber==0x2){//store
+        queue.push(message);
+      }else if(functionNumber==0x2){//get length
+        message.data[2]=queue.length;
+        tCore.send(message);
+      }
+      updateText();
+    };
+    this.send=function(what){
+      owner.sendToAllCh(what);
+    };
+  }
+  var bangers=["space","clock"];
+  this.banger=function(owner){
+    var tCore=this;
+    this.sprite=drawer.create('group',{});
+    this.mode="banger";
+    var myType=0;
+    var text=drawer.create('dynamicText',{x:-30,y:-30,text:bangers[myType]+" "+this.mode,fill:"red",listening:false});
+    this.sprite.add(text);
+    var sprite=this.sprite;
+    tCoreMan.Blank.call(this,owner);
+    function doBang(){
+      tCore.send(new Message("emptyBang"));
+    }
+    this.onAfterClock=function(){
+      if(myType==1)doBang();
+    };
+    this.send=function(what){
+      owner.sendToAllCh(what);
+    };
+    function changeType(a){
+      myType=Math.abs(a%bangers.length);
+      text.change({text:bangers[myType]+" "+tCore.mode});
+    }
+    keyboard.on('keydown',function(e){
+      // console.log(e);
+      if(owner.selected)
+      if(e.keyCode===32){
+        if(myType==0)doBang();
+      }else if(e.keyCode===38){
+        changeType(myType+1);
+      }else if(e.keyCode===40){
+        changeType(myType-1);
+      }
+    });
   }
   this.muxer=function(owner){
     var tCore=this;
@@ -100,6 +162,39 @@
     this.onAfterClock=function(){};
     this.onSignal=function(e){};
     this.send=function(a){};
+  }
+  var outputs=["synth play"]
+  this.output=function(owner){
+    var tCore=this;
+    this.sprite=drawer.create('group',{});
+    this.mode="output";
+    var myType=0;
+    var text=drawer.create('dynamicText',{x:-30,y:-30,text:outputs[myType]+" "+this.mode,fill:"red",listening:false});
+    this.sprite.add(text);
+    var sprite=this.sprite;
+    tCoreMan.Blank.call(this,owner);
+    function changeType(a){
+      myType=Math.abs(a%outputs.length);
+      text.change({text:outputs[myType]+" "+tCore.mode});
+    }
+    this.onSignal=function(e){
+      var message=e.message;
+      if(myType=0){
+        synth.play(message.headerAddress.get(),message.data[1],message.data[2]);
+      }else if(myType=1){
+        synth.play(message.data[0],message.data[1],message.data[2]);
+      }
+    }
+    keyboard.on('keydown',function(e){
+      // console.log(e);
+      if(owner.selected)
+      if(e.keyCode===32){
+      }else if(e.keyCode===38){
+        changeType(myType+1);
+      }else if(e.keyCode===40){
+        changeType(myType-1);
+      }
+    });
   }
   return this;
 }).call(ModeCores);

@@ -46,7 +46,7 @@
     ];
     var myType=0;
     this.sprite=drawer.create('group',{});
-    this.text=drawer.create('dynamicText',{appendTo:this.sprite,text:types[myType],fill:"red"});
+    this.text=drawer.create('dynamicText',{appendTo:this.sprite,text:types[myType],fill:"red",listening:false});
     var text=this.text;
     var sprite=this.sprite;
     tCoreMan.Blank.call(this,owner);

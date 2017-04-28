@@ -130,14 +130,12 @@
       text.change({text:types[myType]});
     }
     var play=function(a){
-      // console.log(a,"=",pMap[a]);
-      var num=a%sequencerButtons.length;
       // console.log(sequencerButtons[num],a,num);
-      var ev=sequencerButtons[num].getEvent();
+      var ev=sequencerButtons[a].getEvent();
       if(ev!==false){
         synth.play(1,ev);
       }
-      sequencerButtons[num].playHighlight();
+      sequencerButtons[a].playHighlight();
 
     }
     this.onClock=function(){
@@ -156,13 +154,16 @@
     };
 
     var triggerSubLicog=function(number,message){
+      number%=sequencerButtons.length;
+      if(isNaN(number)){ number=0; console.warn("number is NaN"); }
       if(number=="A"){
         play(0);
         console.log("should play all licogs");
       }else{
         play(number);
       }
-      nextClockQueue.push(["subSend","A",new Message("emptyBang")]);
+      var ev=sequencerButtons[number].getEvent();
+      if(ev)nextClockQueue.push(["subSend","A",new Message([0x00,ev,0xff])]);
     }
 
     this.onSignal=function(e){
