@@ -38,17 +38,15 @@
     var text=this.text;
     this.sprite=group;
 
-    mouse.Clickable.call(this);
-    group.on('mouseover', function(e) {
-      rect.change({fill:hColor});;
-      tSq.handle('mouseenter');
-    });
-    group.on('mouseout', function(e) {
-      rect.change({fill:cColor});;
-      tSq.handle('mouseout');
-    });
+    mouse.Clickable.call(this,group);
 
-    group.on('click',function(){
+    this.on('mouseenter', function(e) {
+      rect.change({fill:hColor});;
+    });
+    this.on('mouseout', function(e) {
+      rect.change({fill:cColor});;
+    });
+    this.on('mousedown',function(){
       tSq.enableTextEdit();
     });
 
