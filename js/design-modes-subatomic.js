@@ -114,13 +114,13 @@
       owner.sendToAllCh(what);
     };
   }
-  var bangers=["space","clock"];
-  this.banger=function(owner){
+  var inputs=["space","clock"];
+  this.input=function(owner){
     var tCore=this;
     this.sprite=drawer.create('group',{});
-    this.mode="banger";
+    this.mode="input";
     var myType=0;
-    var text=drawer.create('dynamicText',{x:-30,y:-30,text:bangers[myType]+" "+this.mode,fill:"red",listening:false});
+    var text=drawer.create('dynamicText',{x:-30,y:-30,text:inputs[myType]+" "+this.mode,fill:"red",listening:false});
     this.sprite.add(text);
     var sprite=this.sprite;
     tCoreMan.Blank.call(this,owner);
@@ -134,8 +134,8 @@
       owner.sendToAllCh(what);
     };
     function changeType(a){
-      myType=Math.abs(a%bangers.length);
-      text.change({text:bangers[myType]+" "+tCore.mode});
+      myType=Math.abs(a%inputs.length);
+      text.change({text:inputs[myType]+" "+tCore.mode});
     }
     keyboard.on('keydown',function(e){
       // console.log(e);

@@ -45,7 +45,7 @@ window.onload=function(){
     //submolecule
     'monitor',
     'operator',
-    'banger',
+    'input',
     'muxer',
     'fifo',
     'output',
