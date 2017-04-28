@@ -74,7 +74,7 @@
             charScript=charScript.substring(0,4);
             keyboard.off('keydown.'+name);
             tSq.setActive(false);
-            dataButtons[(myId+1)%(dataButtons.length-1)].enableTextEdit();
+            dataButtons[(myId+1)%(dataButtons.length)].enableTextEdit();
           }else if (e.keyCode==16){
             //SHIFT
           }else if(e.keyCode>0){
