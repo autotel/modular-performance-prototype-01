@@ -4,6 +4,7 @@ var ModeCores=new (function(){
   this.Blank=function(owner){
     var tCore=this;
 //    this.sprite=new Konva.Group();
+    if(typeof this.handle!=='function')onHandlers.call(this);
     this.update=function(){};
     this.draw=function(){};
     this.onClock=function(){};

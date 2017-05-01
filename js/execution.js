@@ -1,6 +1,3 @@
-//execution
-
-
 'use strict';
 var modules=[];
 var connectorsLayer=drawer.create('layer');

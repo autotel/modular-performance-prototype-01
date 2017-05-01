@@ -23,12 +23,14 @@
     var aColor=props.aColor||"#cc0000";
     var cColor=nColor;
     var tSq=this;
+    var maxLen=props.maxLen||4;
+    var clearOnClick=props.clearOnClick?props.clearOnClick:false;
     props.rect.fill=cColor;
     var active=false;
     props.rect.what='dynamicRect';
     props.group.interactive=true;
     props.rect.interactive=true;
-    for(var a in props){
+    for(var a of ["group","rect","text"]){
       if(a!="group") props[a].appendTo=this.group;
       var what=a;
       if(props[a].hasOwnProperty("what")) what=props[a].what;
@@ -57,28 +59,30 @@
       cColor=(active ? aColor : nColor);
       rect.change({fill:cColor});;
       if(active){
+        if(clearOnClick)
         charScript="";
         text.setText(charScript);
         tSq.handle("valuechange",charScript);
         keyboard.on('keydown.'+name,function(e){
           console.log(e);
           if (e.keyCode==8){
-            charScript="";
+            charScript=charScript.substring(0,charScript.length-1);
           }else if (e.keyCode==13){
             //enter
-            charScript=charScript.substring(0,4);
+            charScript=charScript.substring(0,maxLen);
             keyboard.off('keydown.'+name);
             tSq.setActive(false);
           }else if (e.keyCode==9){
             //tab
             e.preventDefault();
-            charScript=charScript.substring(0,4);
+            charScript=charScript.substring(0,maxLen);
             keyboard.off('keydown.'+name);
             tSq.setActive(false);
             dataButtons[(myId+1)%(dataButtons.length)].enableTextEdit();
           }else if (e.keyCode==16){
             //SHIFT
           }else if(e.keyCode>0){
+            console.log(e.keyCode);
             charScript+=e.key.toUpperCase ( );
           }else {}
           console.log(charScript);

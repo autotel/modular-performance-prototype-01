@@ -1,4 +1,5 @@
-var utils=(function(){
+'use strict';
+var utils=new (function(){
   var names={};
   this.newName=function(p){
     if(names.hasOwnProperty(p)){

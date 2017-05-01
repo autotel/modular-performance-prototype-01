@@ -23,6 +23,10 @@
         return input&parseInt(value,16);
       },'|':function(input,value){
         return input|parseInt(value,16);
+      },'?':function(input,value){
+        return input==parseInt(value,16);
+      },'!':function(input,value){
+        return input!=parseInt(value,16);
       }
       //pendant: add one function that is for multiple functions in a chain
     };
@@ -57,6 +61,7 @@
     this.update=function(){};
     this.draw=function(){};
     this.onSignal=function(e){
+      var cancelMessage=false;
       var message=e.message;
       for(var a in operations){
         if(operations[a]!==false&&operations[a].length>1){
@@ -64,9 +69,10 @@
           var value=operations[a].slice(1,operations[a].length);
           // console.log("operator",operation,value,message.data[a],message);
           message.data[a]=operationMap[operation](message.data[a],value);
+          if(message.data[a]===false) cancelMessage=true;
         }
       }
-      tCore.send(message);
+      if(!cancelMessage) tCore.send(message);
     };
     this.send=function(what){
       owner.sendToAllCh(what);
@@ -81,6 +87,21 @@
     var sprite=this.sprite;
     tCoreMan.Blank.call(this,owner);
     var queue=[];
+    var textInput=new tCoreMan.dataButton({
+      maxLen:16,
+      clearOnClick:false,
+      group:{},
+      rect:{width:35,height:40,stroke:'black'},
+      text:{wrap:"char",y:-2,width:40,height:40,fontFamily:"Lucida Console",fill:"black"},
+    });
+    tCore.sprite.add(textInput.sprite);
+    textInput.on('valuechange',function(b){
+      console.log(b);
+      var nm=new Message(b);
+      queue=[nm];
+      console.log("fifo change",queue);
+      updateText();
+    });
     function updateText(){
       var newVal="";
       for(var a of queue){
@@ -88,6 +109,10 @@
       }
       text.change({text:"fifo\n"+newVal});
     }
+    this.on('mousedown',function(){
+      console.log("hi ther");
+      tCore.editing=true;
+    });
     this.onSignal=function(e){
       var message=e.message;
       var functionNumber=message.headerFunction.get();

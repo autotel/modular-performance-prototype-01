@@ -1,8 +1,19 @@
 'use strict';
 var Message=function(data){
+
   if(data=="emptyBang"){
     data=[0x00,0x00,0x00];
   }
+
+  if (typeof data === 'string' || data instanceof String){
+    var rdata=[];
+    var chunks=data.split(/, */);
+    for (var a in chunks){
+      rdata[a]=parseInt(chunks[a],16);
+    }
+    data=rdata;
+  }
+
   //I made this class to simulate message communication in a hardware situation
   //it is utterly useless in the context of javascript
   var tMessage=this;
