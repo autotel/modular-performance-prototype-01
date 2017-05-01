@@ -67,9 +67,12 @@
         if(operations[a]!==false&&operations[a].length>1){
           var operation=operations[a][0];
           var value=operations[a].slice(1,operations[a].length);
-          // console.log("operator",operation,value,message.data[a],message);
           message.data[a]=operationMap[operation](message.data[a],value);
-          if(message.data[a]===false) cancelMessage=true;
+          if(message.data[a]===false){
+            cancelMessage=true;
+          }else{
+            message.data[a]=e.message.data[a];
+          }
         }
       }
       if(!cancelMessage) tCore.send(message);

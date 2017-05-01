@@ -75,6 +75,9 @@ var Message=function(data){
     hexString+="]";
     return hexString;
   }
+  this.clone=function(){
+    return new Message(JSON.parse(JSON.stringify(this.data)));
+  }
   this.log=function(){
     console.log(tMessage.stringify(),data);
   }

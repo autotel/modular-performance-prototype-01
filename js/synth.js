@@ -1,6 +1,3 @@
-// var synthBase=function(){
-//   this.play=function(a){};
-// }
 'use strict';
 var synth=new (function(){
   var Drumkit=function(){

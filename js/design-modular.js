@@ -86,13 +86,13 @@ var ConnectorGraph=function(layer,from,to){
   });
   mouse.on('mouseup',function(e){
     if(mouseBending){
-      var underMouse=e.underMouse[0];
+      console.log(e.underMouse);
       // console.log("up",e);
-      if(e.underMouse.length>0){
+      for(var a of e.underMouse){
         var result=false;
-        result=createConnection(from,underMouse);
+        result=createConnection(from,a);
         if(result)
-        result=createConnection(underMouse,to);
+        result=createConnection(a,to);
         if(result)
         from.unpatch(to);
       }
@@ -244,7 +244,7 @@ var ConnectorModule=function(parent,parentIndex,x,y){
 
   this.sendToCh=function(which,what){
     if(t_Cnm.hover){
-      console.log("["+parent.id+","+which+"]>>"+what.stringify());
+      console.log("["+parent.id+","+which+"]>c>"+what.stringify());
     }
     if(t_Cnm.children[which]!==undefined){
     var who=t_Cnm.children[which].child;
@@ -255,7 +255,7 @@ var ConnectorModule=function(parent,parentIndex,x,y){
 
   this.sendToAllCh=function(what){
     if(t_Cnm.hover){
-      console.log("["+parent.id+",all]>>"+what.stringify());
+      console.log("["+parent.id+",all]>c>"+what.stringify());
     }
     t_Cnm.highlight();
     if(t_Cnm.children)
@@ -447,6 +447,11 @@ var CodeModule=function(layer,id){
   //   who.receive(what,t_Cm);
   // }
   this.receive=function(what,whom){
+    //if the message is cloned while sending, all sieblings will share the same
+    //message, thus their modifications to it will affect sieblings. this is interesting
+    //but probably not applicable to the physical prototype, and is hard to understand
+    //as to make use of this in such a short time of one semester.
+    what=what.clone();
     if(t_Cm.hover){
       console.log("["+t_Cm.id+"]<<"+what.stringify()+"<<["+whom+"]");
     }
