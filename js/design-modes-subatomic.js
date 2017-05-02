@@ -62,20 +62,20 @@
     this.draw=function(){};
     this.onSignal=function(e){
       var cancelMessage=false;
-      var message=e.message;
+      var outgoMessage=e.message.clone();
       for(var a in operations){
         if(operations[a]!==false&&operations[a].length>1){
           var operation=operations[a][0];
           var value=operations[a].slice(1,operations[a].length);
-          message.data[a]=operationMap[operation](message.data[a],value);
-          if(message.data[a]===false){
+          outgoMessage.data[a]=operationMap[operation](outgoMessage.data[a],value);
+          if(outgoMessage.data[a]===false){
             cancelMessage=true;
-          }else{
-            message.data[a]=e.message.data[a];
+          }else if(outgoMessage.data[a]===true){
+            outgoMessage.data[a]=e.message.data[a];
           }
         }
       }
-      if(!cancelMessage) tCore.send(message);
+      if(!cancelMessage) tCore.send(outgoMessage);
     };
     this.send=function(what){
       owner.sendToAllCh(what);
