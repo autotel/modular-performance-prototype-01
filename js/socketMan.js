@@ -2,31 +2,19 @@
 //client side!
 var socketMan=new (function(){
 
-  var messages={
-    HELLO:0,
-    CHANGE:0,
-    CREATE:0,
-    DELETE:0,
-    EVENT:0,
-    CONSOLE:0
-  }
-  var b=0;
-  for(var a in messages){
-    messages[a]=b;
-    b++;
-  }
-
   var socket = io();
 
+  getMessageNames(this);
+  var messageIndexes=this.messageIndexes;
+  var messageNames=this.messageNames;
 
-
-  socket.on(messages.CHANGE, function(e){
+  socket.on(messageIndexes.CHANGE, function(e){
     console.log("socket change:",e);
   });
-  socket.on(messages.HELLO, function(e){
+  socket.on(messageIndexes.HELLO, function(e){
     console.log("socket hello:",e);
   });
-  socket.on(messages.CONSOLE, function(e){
+  socket.on(messageIndexes.CONSOLE, function(e){
     console.log("socket console:",e);
   });
 	$(window).on('beforeunload', function(){
@@ -34,8 +22,8 @@ var socketMan=new (function(){
 	});
 
   this.moduleCreated=function(e){
-    console.log("socket",e,messages.CREATE);
-    socket.emit(messages.CREATE,{id:e.id});
+    console.log("socket",e,messageIndexes.CREATE);
+    socket.emit(messageIndexes.CREATE,{id:e.id});
   }
 
 
