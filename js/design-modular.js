@@ -381,6 +381,9 @@ var CodeModule=function(layer,id){
     t_Cm.modeCore=new modeProto(t_Cm);
     group.add(t_Cm.modeCore.sprite);
     myModeProto=modeProto;
+
+
+    master.handle('createModule',{module:this,id:id});
   }
 
 

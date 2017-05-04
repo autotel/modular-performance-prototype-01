@@ -1,6 +1,9 @@
 'use strict';
 var master=new (function(){
   onHandlers.call(this);
+  this.on('createModule',function(e){
+    socketMan.moduleCreated(e);
+  });
   return this;
 })();
 var metronome=new (function(){
@@ -221,14 +224,14 @@ var ModuleBase=function(){
   }
   this.codeString="";
   this.codeActive={};
-  this.runCode=function(){
-    var testStatic="mm";
-    try {
-      eval(t_M.codeString);
-    } catch (e) {
-      throw e;
-    } finally {
-
-    }
-  }
+  // this.runCode=function(){
+  //   var testStatic="mm";
+  //   try {
+  //     eval(t_M.codeString);
+  //   } catch (e) {
+  //     throw e;
+  //   } finally {
+  //
+  //   }
+  // }
 }
