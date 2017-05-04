@@ -12,6 +12,7 @@ var master=new (function(){
   });
   return this;
 })();
+
 var metronome=new (function(){
   onHandlers.call(this);
   var tMetro=this;

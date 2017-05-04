@@ -300,6 +300,7 @@ var CodeModule=function(layer,id){
   this.selected=false;
   this.hover=false;
   var myModeProto="none";
+  this.modeName="none";
 
 
   this.group=drawer.create("dynamicGroup",{appendTo:layer,interactive:true});
@@ -361,13 +362,7 @@ var CodeModule=function(layer,id){
   mouse.Draggable.call(this,dragBody);
 
   var duplicate=function(){
-    var nmod=new CodeModule(layer,modules.length);
-    nmod.mode(myModeProto);
-
-    nmod.move({x:sprite.attrs.x,y:sprite.attrs.y});
-    nmod.sprite.animate({x:sprite.attrs.x+30,y:sprite.attrs.y+30,easing:Konva.Easings.ElasticEaseOut});
-
-    modules.push(nmod);
+    socketMan.requestCreation(t_Cm);
   };
   var HOR=false;
   this.overrideHover=function(){
@@ -379,11 +374,17 @@ var CodeModule=function(layer,id){
   //   // sprite.on('mouseout',function(){HOR=false});
   // }
 
-  this.mode=function(modeProto){
-    t_Cm.modeCore=new modeProto(t_Cm);
-    group.add(t_Cm.modeCore.sprite);
-    myModeProto=modeProto;
-    master.handle('createModule',{module:this,id:id});
+  this.setMode=function(modeName){
+    console.log("set mode "+modeName);
+    if(ModeCores.hasOwnProperty(modeName)){
+      myModeProto=ModeCores[modeName];
+      t_Cm.mode=modeName;
+      t_Cm.modeCore=new myModeProto(t_Cm);
+      group.add(t_Cm.modeCore.sprite);
+    }else{
+      console.warn("setMode invalid mode rquested: "+modeName);
+    }
+    // master.handle('createModule',{module:this,id:id});
   }
 
 

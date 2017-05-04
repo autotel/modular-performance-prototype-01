@@ -20,26 +20,29 @@ var socketMan=new (function(){
   socket.on(messageIndexes.CREATE,function(e){
     console.log("socket created a module",e);
     var modl;
-    var c=e.id;
+    var c=e.unique;
     var mode=e.mode;
-    modl=new CodeModule(layer,c);
-    modl.mode(ModeCores[mode]);
+    //pendant: remove this local id nonesense
+    var localId=modules.length;
+    modl=new CodeModule(layer,localId);
+    modules.push(modl);
+    modl.setMode(mode);
     modl.move({x:e.x,y:e.y});
-    modules[c]=modl;
   });
 	$(window).on('beforeunload', function(){
 	  socket.close();
 	});
 
-  this.moduleCreated=function(e){
-    console.log("socket",e,messageIndexes.CREATE);
-    socket.emit(messageIndexes.CREATE,{id:e.id});
+  this.requestCreation=function(prototype){
+    // console.log("socket",e,messageIndexes.CREATE);
+    socket.emit(messageIndexes.CREATE,{x:prototype.x,y:prototype.y,mode:prototype.modeName});
   }
+
   this.moduleChanged=function(e){
-    socket.emit(messageIndexes.CHANGE,{id:e.id,changes:e.changes});
+    socket.emit(messageIndexes.CHANGE,{unique:e.unique,changes:e.changes});
   }
   this.connectionCreated=function(e){
-    socket.emit(messageIndexes.CONNECT,{fromid:e.from.id,toid:e.to.id});
+    socket.emit(messageIndexes.CONNECT,{fromid:e.from.unique,toid:e.to.unique});
   }
 
 
