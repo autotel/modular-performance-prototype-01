@@ -34,28 +34,7 @@ window.onload=function(){
   // rectangle.x = 170;
   // rectangle.y = 170;
   // stage.add(rectangle);
-  var shoplist=[
-    //composite
-    'flower',
-    //molecule
-    'licog',
-    //submolecule
-    'monitor',
-    'operator',
-    'input',
-    'muxer',
-    'fifo',
-    'output',
-  ];
-  var c=0;
-  for(var element of shoplist){
-    var modl;
-    modl=new CodeModule(layer,c);
-    modl.mode(ModeCores[element]);
-    modl.move({x:100,y:30*(shoplist.length-c)});
-    modules[c]=modl;
-    c++;
-  }
+  
 
   // modules[0].modeCore=new ModeCores.notePlayer(modules[0]);
   // modules[0].type="pModule";

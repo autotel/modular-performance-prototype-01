@@ -17,6 +17,16 @@ var socketMan=new (function(){
   socket.on(messageIndexes.CONSOLE, function(e){
     console.log("socket console:",e);
   });
+  socket.on(messageIndexes.CREATE,function(e){
+    console.log("socket created a module",e);
+    var modl;
+    var c=e.id;
+    var mode=e.mode;
+    modl=new CodeModule(layer,c);
+    modl.mode(ModeCores[mode]);
+    modl.move({x:e.x,y:e.y});
+    modules[c]=modl;
+  });
 	$(window).on('beforeunload', function(){
 	  socket.close();
 	});
@@ -24,6 +34,12 @@ var socketMan=new (function(){
   this.moduleCreated=function(e){
     console.log("socket",e,messageIndexes.CREATE);
     socket.emit(messageIndexes.CREATE,{id:e.id});
+  }
+  this.moduleChanged=function(e){
+    socket.emit(messageIndexes.CHANGE,{id:e.id,changes:e.changes});
+  }
+  this.connectionCreated=function(e){
+    socket.emit(messageIndexes.CONNECT,{fromid:e.from.id,toid:e.to.id});
   }
 
 

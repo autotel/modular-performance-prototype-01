@@ -4,6 +4,12 @@ var master=new (function(){
   this.on('createModule',function(e){
     socketMan.moduleCreated(e);
   });
+  this.on('change',function(e){
+    socketMan.moduleChanged(e);
+  });
+  this.on('connection',function(e){
+    socketMan.connectionCreated(e);
+  });
   return this;
 })();
 var metronome=new (function(){
@@ -214,6 +220,7 @@ var keyboard=new(function(){
   });
   return this;
 })();
+
 var ModuleBase=function(){
   if(!this.handle)
   onHandlers.call(this);

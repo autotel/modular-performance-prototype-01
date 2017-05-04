@@ -119,6 +119,9 @@ var ConnectorGraph=function(layer,from,to){
 }
 //pendant: n nor a are needed here. Connecting model needs to be detangled and simplified a lot
 var createConnection=function(from,to){
+
+  master.handle('connection',{from:from,to:to});
+
   var result=false;
   if(typeof from.plug === 'function'){
     if(to.type=="connectorTerminal"){
@@ -377,12 +380,9 @@ var CodeModule=function(layer,id){
   // }
 
   this.mode=function(modeProto){
-
     t_Cm.modeCore=new modeProto(t_Cm);
     group.add(t_Cm.modeCore.sprite);
     myModeProto=modeProto;
-
-
     master.handle('createModule',{module:this,id:id});
   }
 
@@ -392,6 +392,7 @@ var CodeModule=function(layer,id){
   }
   this.move=function(v){
     group.move({x:v.x,y:v.y});
+    master.handle('change',{id:id,changes:{x:v.x,y:v.y}});
   }
   //pendant: I am not being consisten in how an object that extends a clockable,
   //implements the click detection. some are calling the clickable handle when

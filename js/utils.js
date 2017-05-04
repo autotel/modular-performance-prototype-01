@@ -9,6 +9,7 @@ var utils=new (function(){
     }
     return p+names[p];
   }
+  
   this.average=function(list){
     var factor=1/list.length;
     var ret=0;
