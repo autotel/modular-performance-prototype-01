@@ -120,7 +120,7 @@ var ConnectorGraph=function(layer,from,to){
 //pendant: n nor a are needed here. Connecting model needs to be detangled and simplified a lot
 var createConnection=function(from,to){
 
-  master.handle('connection',{from:from,to:to});
+  // master.handle('connection',{from:from,to:to});
 
   var result=false;
   if(typeof from.plug === 'function'){
@@ -302,6 +302,8 @@ var CodeModule=function(layer,id){
   var myModeProto="none";
   this.modeName="none";
 
+  this.unique=false;
+
 
   this.group=drawer.create("dynamicGroup",{appendTo:layer,interactive:true});
   var group=this.group;
@@ -362,12 +364,14 @@ var CodeModule=function(layer,id){
   mouse.Draggable.call(this,dragBody);
 
   this.duplicate=function(){
-    var nmod=new CodeModule(layer,modules.length);
-    nmod.move({x:sprite.attrs.x,y:sprite.attrs.y});
-    nmod.setMode(t_Cm.modeName);
-    nmod.sprite.animate({x:sprite.attrs.x+30,y:sprite.attrs.y+30,easing:Konva.Easings.ElasticEaseOut});
-    modules.push(nmod);
-    socketMan.requestCreation(nmod);
+    //modules don't duplicate on clint side because they need to have a unique.
+    //server wiull send the created object with unique assigned
+    // var nmod=new CodeModule(layer,modules.length);
+    // nmod.move({x:sprite.attrs.x,y:sprite.attrs.y});
+    // nmod.setMode(t_Cm.modeName);
+    // nmod.sprite.animate({x:sprite.attrs.x+30,y:sprite.attrs.y+30,easing:Konva.Easings.ElasticEaseOut});
+    // modules.push(nmod);
+    socketMan.requestCreation(t_Cm);
   };
   var HOR=false;
   this.overrideHover=function(){
@@ -391,14 +395,20 @@ var CodeModule=function(layer,id){
     }
     // master.handle('createModule',{module:this,id:id});
   }
+  
 
-
-  this.position=function(v){
+  this.position=function(v,bindFunction){
     group.position(v);
+    if(typeof bindFunction==="function"){
+      bindFunction({unique:t_Cm.unique,x:v.x,y:v.y});
+    }
   }
-  this.move=function(v){
+  this.move=function(v,bindFunction){
     group.move({x:v.x,y:v.y});
-    master.handle('change',{id:id,changes:{x:v.x,y:v.y}});
+    // master.handle('change',{id:id,changes:{x:v.x,y:v.y}});
+    if(typeof bindFunction==="function"){
+      bindFunction({unique:t_Cm.unique,x:v.x,y:v.y});
+    }
   }
   //pendant: I am not being consisten in how an object that extends a clockable,
   //implements the click detection. some are calling the clickable handle when

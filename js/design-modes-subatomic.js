@@ -48,6 +48,9 @@
       gridButtons.push(rect);
       tCore.sprite.add(rect.sprite);
       rect.on('valuechange',function(b){
+        var send={unique:owner.unique}
+        send["modeProperties.operations."+a]=b;
+        globalBindFunction(send);
         console.log("op"+a+"change");
         operations[a]=b;
       });
@@ -80,6 +83,16 @@
     this.send=function(what){
       owner.sendToAllCh(what);
     };
+    var updateOperation=function(num,to){
+      gridButtons[num].updateValue(to);
+      operations[num]=to;
+    };
+    this.applyModeProperty=function(splitIndex,value){
+      console.log(splitIndex,value);
+      if(splitIndex[1]=="operations"){
+        updateOperation(splitIndex[2],value);
+      }
+    }
   }
   this.fifo=function(owner){
     var tCore=this;

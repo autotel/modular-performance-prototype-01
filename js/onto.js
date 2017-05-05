@@ -1,15 +1,15 @@
 'use strict';
 var master=new (function(){
   onHandlers.call(this);
-  this.on('createModule',function(e){
-    socketMan.moduleCreated(e);
-  });
-  this.on('change',function(e){
-    socketMan.moduleChanged(e);
-  });
-  this.on('connection',function(e){
-    socketMan.connectionCreated(e);
-  });
+  // this.on('createModule',function(e){
+  //   socketMan.moduleCreated(e);
+  // });
+  // this.on('change',function(e){
+  //   socketMan.moduleChanged(e);
+  // });
+  // this.on('connection',function(e){
+  //   socketMan.connectionCreated(e);
+  // });
   return this;
 })();
 
@@ -202,7 +202,7 @@ var mouse=new (function(){
 
     this.onDrag=function(e){
       if(t_ck.clicked){
-        t_ck.position(e.offset);
+        t_ck.position(e.offset,globalBindFunction);
         t_ck.handle('dragging',e);
         return true;
       }else{

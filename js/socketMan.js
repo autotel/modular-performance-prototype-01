@@ -1,15 +1,50 @@
 'use strict';
 //client side!
-var socketMan=new (function(){
 
+//apply this functions to element that have data binding with the server,
+//it adds the local flag, that can be used to choose wether changes are emitted
+//or they happen only locally. On a node listening event we want them to happen
+//only locally, but when the user changes them, we want them to be emitted to the
+//server
+// var glocal=function(){
+//   thisThing=this;
+//   this.locally=function(targetFn,params){
+//     targetFn(params,true);
+//   }
+//   this.bind=function(changeFunction,messageName,dataParams){
+//     return function(params,localFlag){
+//       var normalizedParams=changeFunction(params);
+//       if(!localFlag){
+//         normalizedParams.unique=thisThing.unique;
+//         socketMan.requestChange(messageName,normalizedParams);
+//       }
+//     }
+//   }
+// }
+
+var globalBindFunction;
+var uniqueArray=[];
+var socketMan=new (function(){
   var socket = io();
 
   getMessageNames(this);
   var messageIndexes=this.messageIndexes;
   var messageNames=this.messageNames;
-
-  socket.on(messageIndexes.CHANGE, function(e){
+  var applyReceivedProperties=function(e){
+    var subject=uniqueArray[e.unique];
     console.log("socket change:",e);
+    if(e.hasOwnProperty("x")||e.hasOwnProperty("y")){
+      subject.position({x:e.x,y:e.y});
+    }
+    for(var a in e){
+      var splitIndex=a.split('.');
+      if(splitIndex[0]=="modeProperties"){
+        subject.modeCore.applyModeProperty(splitIndex,e[a]);
+      }
+    }
+  }
+  socket.on(messageIndexes.CHANGE, function(e){
+    applyReceivedProperties(e);
   });
   socket.on(messageIndexes.HELLO, function(e){
     console.log("socket hello:",e);
@@ -27,7 +62,10 @@ var socketMan=new (function(){
     modl=new CodeModule(layer,localId);
     modules.push(modl);
     modl.setMode(mode);
-    modl.move({x:e.x,y:e.y});
+    modl.unique=e.unique;
+    uniqueArray[e.unique]=modl;
+
+    applyReceivedProperties(e);
   });
 	$(window).on('beforeunload', function(){
 	  socket.close();
@@ -38,9 +76,12 @@ var socketMan=new (function(){
     console.log({x:prototype.x,y:prototype.y,mode:prototype.modeName},prototype);
     socket.emit(messageIndexes.CREATE,{x:prototype.sprite.attrs.x,y:prototype.sprite.attrs.y,mode:prototype.modeName});
   }
-
-  this.moduleChanged=function(e){
-    socket.emit(messageIndexes.CHANGE,{unique:e.unique,changes:e.changes});
+  this.requestChange=function(messageName,params){
+    socket.emit(messageName,params);
+  }
+  globalBindFunction=this.bindFunction=function(normalChanges){
+    // normalChanges.global=true;
+    socket.emit(messageIndexes.CHANGE,normalChanges);
   }
   this.connectionCreated=function(e){
     socket.emit(messageIndexes.CONNECT,{fromid:e.from.unique,toid:e.to.unique});

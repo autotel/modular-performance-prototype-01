@@ -14,6 +14,11 @@ var ModeCores=new (function(){
     metronome.on('beat',function(){tCore.onClock()});
     metronome.on('afterbeat',function(){tCore.onAfterClock()});
     master.on('update',function(){tCore.draw();tCore.update();});
+    this.applyModeProperties=function(props){
+      for(var a in props){
+        this[a]=props[a];
+      }
+    }
   }
 
 

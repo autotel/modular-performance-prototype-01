@@ -53,6 +53,11 @@
       tSq.enableTextEdit();
     });
 
+    this.updateValue=function(to){
+      if(to)
+      charScript=to;
+      text.setText(charScript);
+    }
     this.enableTextEdit=function(){
       console.log(name,charScript);
       active=!active;

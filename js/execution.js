@@ -34,7 +34,7 @@ window.onload=function(){
   // rectangle.x = 170;
   // rectangle.y = 170;
   // stage.add(rectangle);
-  
+
 
   // modules[0].modeCore=new ModeCores.notePlayer(modules[0]);
   // modules[0].type="pModule";
