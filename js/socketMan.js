@@ -40,9 +40,15 @@ var socketMan=new (function(){
       var splitIndex=a.split('.');
       if(splitIndex[0]=="modeProperties"){
         subject.modeCore.applyModeProperty(splitIndex,e[a]);
+      }else if(splitIndex[0]=="connection"){
+        var object=uniqueArray[e[a]];
+        subject.setChild(parseInt(splitIndex[1]),object);
+        // subject.modeCore.applyModeProperty(splitIndex,e[a]);
       }
     }
   }
+
+
   socket.on(messageIndexes.CHANGE, function(e){
     applyReceivedProperties(e);
   });
@@ -82,6 +88,16 @@ var socketMan=new (function(){
   globalBindFunction=this.bindFunction=function(normalChanges){
     // normalChanges.global=true;
     socket.emit(messageIndexes.CHANGE,normalChanges);
+  }
+  this.connectBindFunction=function(from,chn,to){
+    var change={unique:from.unique};
+    change["connection."+chn]=to.unique;
+    globalBindFunction(change);
+  }
+  this.disconnectBindFunction=function(from,chn,to){
+    var change={unique:from.unique};
+    change["connection."+chn]=-1;
+    globalBindFunction(change);
   }
   this.connectionCreated=function(e){
     socket.emit(messageIndexes.CONNECT,{fromid:e.from.unique,toid:e.to.unique});

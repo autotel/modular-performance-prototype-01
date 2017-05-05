@@ -115,9 +115,22 @@
       console.log(b);
       var nm=new Message(b);
       queue=[nm];
+      // console.log("fifo change",queue);
+      updateText();
+      //data binding part
+      var send={unique:owner.unique}
+      send["modeProperties.userdata"]=b;
+      globalBindFunction(send);
+    });
+    function updateOperation(stringValue){
+      // console.log(b);
+      console.log("updateOperation"+stringValue);
+      var nm=new Message(stringValue);
+      queue=[nm];
       console.log("fifo change",queue);
       updateText();
-    });
+      textInput.updateValue(stringValue);
+    }
     function updateText(){
       var newVal="";
       for(var a of queue){
@@ -154,6 +167,13 @@
     this.send=function(what){
       owner.sendToAllCh(what);
     };
+    this.applyModeProperty=function(splitIndex,value){
+      console.log(splitIndex,value);
+      if(splitIndex[1]=="userdata"){
+        updateOperation(value);
+      }
+    }
+
   }
   var inputs=["space","clock"];
   this.input=function(owner){

@@ -90,18 +90,18 @@ var ConnectorGraph=function(layer,from,to){
       // console.log("up",e);
       for(var a of e.underMouse){
         var result=false;
-        result=createConnection(from,a);
+        result=createConnection(from,a,socketMan.connectBindFunction);
         if(result)
-        result=createConnection(a,to);
+        result=createConnection(a,to,socketMan.connectBindFunction);
         if(result)
-        from.unpatch(to);
+        from.unpatch(to,socketMan.disconnectBindFunction);
       }
     }
     mouseBending=false;
   });
   keyboard.on('keydown',function(e){
     if(t_Cg.selected) if(e.keyCode===46){
-      from.unpatch(to);
+      from.unpatch(to,socketMan.disconnectBindFunction);
     }
   });
   this.on('select',function(){
@@ -118,16 +118,16 @@ var ConnectorGraph=function(layer,from,to){
 
 }
 //pendant: n nor a are needed here. Connecting model needs to be detangled and simplified a lot
-var createConnection=function(from,to){
+var createConnection=function(from,to,cb){
 
   // master.handle('connection',{from:from,to:to});
 
   var result=false;
   if(typeof from.plug === 'function'){
     if(to.type=="connectorTerminal"){
-      result=from.plug(to.parent);
+      result=from.plug(to.parent,cb);
     }else if(to.type=="codeModule"){
-      result=from.plug(to);
+      result=from.plug(to,cb);
     }else{
       console.log("incompatible connection destination");
       result=false;
@@ -180,6 +180,7 @@ var ConnectorModule=function(parent,parentIndex,x,y){
     this[a]=drawer.create(what,props[a]);
   }
   this.sprite=this.group;
+  this.sprite.absolute={x:0,y:0}
   var group=this.group;
   var line=this.line;
   var circle=this.circle;
@@ -206,7 +207,7 @@ var ConnectorModule=function(parent,parentIndex,x,y){
       t_Cnm.isClicked=false;
       //umo: underMouse
       var umo=mouse.getHoveredClickable();
-        createConnection(t_Cnm,umo);
+        createConnection(t_Cnm,umo,socketMan.connectBindFunction);
     }
   });
   mouse.on('drag',function(e){
@@ -232,17 +233,40 @@ var ConnectorModule=function(parent,parentIndex,x,y){
     }
     return clickTaken;
   }
-  this.plug=function(who){
+  this.plug=function(who,bindFunction){
     if(who){
       if(!this.children) this.children=[];
-      t_Cnm.children.push({child:who,connectorGraph:new ConnectorGraph(connectorsLayer,t_Cnm,who)});
+      var a=t_Cnm.children.push({child:who,connectorGraph:new ConnectorGraph(connectorsLayer,t_Cnm,who)});
+      a--;
+      if(typeof bindFunction==="function")
+        bindFunction(parent,a,who);
       return true;
     }else{
       return false;
     }
   }
-  this.unpatch=function(who){
-    return t_Cnm.unplug(who);
+  this.setChild=function(n,to,bindFunction){
+    console.log("setchild",n,to,bindFunction);
+    // if(to){
+    if(!t_Cnm.children) t_Cnm.children=[];
+    if(t_Cnm.children[n]!==false)//console.log("chset"+n+" unpatch"),
+      t_Cnm.unpatch(t_Cnm.children[n]);
+    if(to){
+      t_Cnm.children[n]=({child:to,connectorGraph:new ConnectorGraph(connectorsLayer,t_Cnm,to)});
+      if(typeof bindFunction==="function")
+        bindFunction(parent,n,who);
+      return true;
+    }else{
+      this.unplugN(n);
+      return false;
+    }
+
+    // }else{
+      // return false;
+    // }
+  }
+  this.unpatch=function(who,bindFunction){
+    return t_Cnm.unplug(who,bindFunction);
   }
 
   this.sendToCh=function(which,what){
@@ -267,12 +291,25 @@ var ConnectorModule=function(parent,parentIndex,x,y){
       who.child.receive(what,t_Cnm);
     }
   }
-
-  this.unplug=function(who){
+  this.unplugN=function(n,bindFunction){
+    if(this.children[n])
+    if(this.children[n].connectorGraph){
+      t_Cnm.children[n].connectorGraph.remove();
+      t_Cnm.children.splice(n,1);
+    }
+    if(typeof bindFunction==="function")
+      bindFunction(parent,n,who);
+    if(t_Cnm.children.length==0){
+      t_Cnm.children=false;
+    }
+  }
+  this.unplug=function(who,bindFunction){
     for(var a in t_Cnm.children){
       if(t_Cnm.children[a].child===who){
         t_Cnm.children[a].connectorGraph.remove();
         t_Cnm.children.splice(a,1);
+        if(typeof bindFunction==="function")
+          bindFunction(parent,a,who);
         if(t_Cnm.children.length==0){
           t_Cnm.children=false;
         }
@@ -395,13 +432,21 @@ var CodeModule=function(layer,id){
     }
     // master.handle('createModule',{module:this,id:id});
   }
-  
+
+  var updateAbsolutes=function(){
+    for(var a of connectors){
+      a.sprite.absolute={};
+      a.sprite.absolute.x=t_Cm.sprite.attrs.x+a.sprite.attrs.x;
+      a.sprite.absolute.y=t_Cm.sprite.attrs.y+a.sprite.attrs.y;
+    }
+  }
 
   this.position=function(v,bindFunction){
     group.position(v);
     if(typeof bindFunction==="function"){
       bindFunction({unique:t_Cm.unique,x:v.x,y:v.y});
     }
+    updateAbsolutes();
   }
   this.move=function(v,bindFunction){
     group.move({x:v.x,y:v.y});
@@ -409,6 +454,7 @@ var CodeModule=function(layer,id){
     if(typeof bindFunction==="function"){
       bindFunction({unique:t_Cm.unique,x:v.x,y:v.y});
     }
+    updateAbsolutes();
   }
   //pendant: I am not being consisten in how an object that extends a clockable,
   //implements the click detection. some are calling the clickable handle when
@@ -418,13 +464,9 @@ var CodeModule=function(layer,id){
   //become clickable should only call one function, passing to thtat function
   //the sprite that detects the mouse
 
-  this.on('dragging',function(e){
-    for(var a of connectors){
-      a.sprite.absolute={};
-      a.sprite.absolute.x=t_Cm.sprite.attrs.x+a.sprite.attrs.x;
-      a.sprite.absolute.y=t_Cm.sprite.attrs.y+a.sprite.attrs.y;
-    }
-  });
+  // this.on('dragging',function(e){
+  //
+  // });
   this.on('select',function(){
     console.log("select");
     cColor=hColor;
@@ -478,22 +520,12 @@ var CodeModule=function(layer,id){
     t_Cm.modeCore.onSignal({message:what,from:whom});
   }
 
-  this.plug=function(who){
-    return primaryConnector.plug(who);
+  this.plug=function(who,bindFunction){
+    return primaryConnector.plug(who,bindFunction);
   }
-  //optional repulsion force?
-  //
-  // master.on('update',function(){
-    // for all other licogs{
-    //   if nearer than treshold
-    //     add repulsive force to my force away from a licog
-    // }
-    // move(force vector)
-  // });
-
-  // this.position=function(a,b){
-  //   t_Cm.sprite.position({x:a,y:b});
-  // }
+  this.setChild=function(a,b,c){
+    return primaryConnector.setChild(a,b,c);
+  }
 }
 
 
