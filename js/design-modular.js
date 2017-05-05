@@ -318,7 +318,7 @@ var CodeModule=function(layer,id){
     if(e.keyCode==68)
     if(t_Cm.selected){
       console.log(this.selected);
-      duplicate();
+      t_Cm.duplicate();
     }
   });
 
@@ -361,8 +361,13 @@ var CodeModule=function(layer,id){
 
   mouse.Draggable.call(this,dragBody);
 
-  var duplicate=function(){
-    socketMan.requestCreation(t_Cm);
+  this.duplicate=function(){
+    var nmod=new CodeModule(layer,modules.length);
+    nmod.move({x:sprite.attrs.x,y:sprite.attrs.y});
+    nmod.setMode(t_Cm.modeName);
+    nmod.sprite.animate({x:sprite.attrs.x+30,y:sprite.attrs.y+30,easing:Konva.Easings.ElasticEaseOut});
+    modules.push(nmod);
+    socketMan.requestCreation(nmod);
   };
   var HOR=false;
   this.overrideHover=function(){
@@ -378,7 +383,7 @@ var CodeModule=function(layer,id){
     console.log("set mode "+modeName);
     if(ModeCores.hasOwnProperty(modeName)){
       myModeProto=ModeCores[modeName];
-      t_Cm.mode=modeName;
+      t_Cm.modeName=modeName;
       t_Cm.modeCore=new myModeProto(t_Cm);
       group.add(t_Cm.modeCore.sprite);
     }else{

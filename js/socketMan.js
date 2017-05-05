@@ -35,7 +35,8 @@ var socketMan=new (function(){
 
   this.requestCreation=function(prototype){
     // console.log("socket",e,messageIndexes.CREATE);
-    socket.emit(messageIndexes.CREATE,{x:prototype.x,y:prototype.y,mode:prototype.modeName});
+    console.log({x:prototype.x,y:prototype.y,mode:prototype.modeName},prototype);
+    socket.emit(messageIndexes.CREATE,{x:prototype.sprite.attrs.x,y:prototype.sprite.attrs.y,mode:prototype.modeName});
   }
 
   this.moduleChanged=function(e){
